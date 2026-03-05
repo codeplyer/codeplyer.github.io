@@ -558,7 +558,7 @@ function startSlideshow() {
   slideshowInterval = setInterval(() => {
     currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
     showPhoto(currentPhotoIndex);
-  }, 4000);
+  }, 10000);
 }
 
 function stopSlideshow() {
@@ -576,7 +576,7 @@ document.getElementById('light-candle').onclick = () => {
   setTimeout(() => {
     document.getElementById('cake-screen').style.display = 'none';
     document.getElementById('wish-screen').style.display = 'flex';
-  }, 1800);
+  }, 1200);
 };
 
 // 吹蜡烛 → 最终祝福
@@ -670,7 +670,7 @@ document.getElementById('btn-blow').onclick = () => {
       if (!bgm2.paused) bgm2.pause();
     };
 
-  }, 17000);
+  }, 6000);
 };
 </script>
 </body>
