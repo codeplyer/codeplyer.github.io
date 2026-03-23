@@ -44,7 +44,7 @@
       align-items: center;
       min-height: 60vh;
       opacity: 0;
-      transition: opacity 2.8s ease 6.5s;
+      transition: opacity 2.2s ease 1.8s;
     }
     .main-content.visible {
       opacity: 1;
@@ -54,8 +54,8 @@
       line-height: 1.7;
       white-space: pre-wrap;
       opacity: 0;
-      transform: translateY(40px);
-      transition: all 1.4s ease-out;
+      transform: translateY(46px);
+      transition: opacity 2.1s ease-out, transform 2.4s ease-out;
     }
     #stage.visible {
       opacity: 1;
@@ -83,81 +83,6 @@
       transform: translateY(-4px);
       box-shadow: 0 12px 35px rgba(160,120,208,0.65);
     }
-
-    #cake-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-    .cake-wrapper {
-      position: relative;
-      width: 380px;
-      height: 380px;
-      margin: 2rem auto;
-    }
-    .cake-img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
-    }
-    .flame {
-      position: absolute;
-      top: -50px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 32px solid transparent;
-      border-right: 32px solid transparent;
-      border-bottom: 110px solid #ff7a7a;
-      filter: blur(7px);
-      animation: flicker 3s infinite alternate;
-      display: none;
-      z-index: 3;
-      opacity: 0.95;
-    }
-    .flame-inner {
-      position: absolute;
-      top: 25px;
-      left: -20px;
-      width: 40px;
-      height: 40px;
-      background: #fffb8f;
-      border-radius: 50%;
-      filter: blur(12px);
-    }
-    @keyframes flicker {
-      0%   { transform: translateX(-50%) scale(1) rotate(5deg); }
-      100% { transform: translateX(-50%) scale(1.1) rotate(-5deg); }
-    }
-    #tip {
-      margin-top: 2.5rem;
-      font-size: 1.6rem;
-      opacity: 0.93;
-      color: #e0d4ff;
-    }
-
-    #wish-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
-    #wish-textarea {
-      width: min(90vw, 640px);
-      min-height: 140px;
-      padding: 1.2rem;
-      font-size: 1.25rem;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(212,165,255,0.3);
-      border-radius: 20px;
-      color: white;
-      resize: vertical;
-      margin: 2rem 0;
-      backdrop-filter: blur(10px);
-    }
-    #wish-textarea::placeholder { color: rgba(240,248,255,0.55); }
 
     #photo-gallery {
       display: none;
@@ -189,21 +114,20 @@
       opacity: 1;
     }
 
-    /* 照片控制按钮优化：手机上尽量一行显示，按钮缩小 */
     .photo-controls {
       margin: 2rem 0;
       display: flex;
       justify-content: center;
-      gap: 1rem;                 /* 间距缩小 */
-      flex-wrap: nowrap;         /* 强制尽量不换行 */
+      gap: 1rem;
+      flex-wrap: nowrap;
       width: 100%;
-      max-width: 420px;          /* 控制总宽度 */
+      max-width: 420px;
     }
 
     .photo-btn {
-      padding: 0.7rem 1.4rem;    /* 缩小内边距 */
-      font-size: clamp(0.95rem, 3.5vw, 1.1rem);  /* 字体更小 */
-      min-width: 90px;           /* 防止太窄 */
+      padding: 0.7rem 1.4rem;
+      font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+      min-width: 90px;
       color: white;
       background: linear-gradient(135deg, var(--accent), var(--accent-dark));
       border: none;
@@ -244,23 +168,6 @@
   <div id="stage"></div>
   <div class="buttons" id="buttons"></div>
 
-  <div id="cake-screen">
-    <div class="cake-wrapper">
-      <img src="cake.jpg" alt="生日蛋糕" class="cake-img">
-      <div class="flame" id="flame">
-        <div class="flame-inner"></div>
-      </div>
-    </div>
-    <div id="tip">点蜡烛吧～</div>
-    <button class="btn" id="light-candle" style="margin-top:2.5rem;">点亮蜡烛</button>
-  </div>
-
-  <div id="wish-screen">
-    <h2 style="margin-bottom:1.6rem;">许个愿吧～</h2>
-    <textarea id="wish-textarea" placeholder="悄悄写下你的愿望……（萤火虫会帮你保密哦）"></textarea>
-    <button class="btn" id="btn-blow">吹灭蜡烛</button>
-  </div>
-
   <div id="finish" style="display:none; text-align:center; padding:2rem; max-width:90%;"></div>
 
   <div id="photo-gallery">
@@ -285,7 +192,7 @@
 </audio>
 
 <script>
-// ===================== 萤火虫 =====================
+// ===================== 萤火虫部分（保持原样） =====================
 const canvas = document.getElementById('fireflies');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -326,7 +233,7 @@ class Firefly {
     const now = performance.now();
     if (this.transitionStart > 0) {
       const elapsed = now - this.transitionStart;
-      this.transitionProgress = Math.min(elapsed / 5000, 1);
+      this.transitionProgress = Math.min(elapsed / 1800, 1);
     }
     const p = this.transitionProgress;
 
@@ -336,8 +243,8 @@ class Firefly {
       const dy = this.target.y - this.y;
       const dist = Math.hypot(dx, dy);
       if (dist > 1.8) {
-        this.x += dx * 0.0035 * this.speed;
-        this.y += dy * 0.0035 * this.speed;
+        this.x += dx * 0.005 * this.speed;
+        this.y += dy * 0.005 * this.speed;
       } else {
         this.x += (Math.random() - 0.5) * 0.7;
         this.y += (Math.random() - 0.5) * 0.7;
@@ -427,71 +334,90 @@ const bgm = document.getElementById('bgm');
 const bgm2 = document.getElementById('bgm2');
 
 const dialog = [
-  { text: "展信佳\n这是一份\n来自遥远星星的信", buttons: ["宁亲启"], auto: 0 },
-  { text: "准备好了吗\n生日庆典就要开始咯", buttons: [], auto: 5000 },
-  { text: "生日怎么能没有音乐呢", buttons: ["来首音乐"], auto: 0 },
-  { text: "嘿嘿\n没想到吧\n不是生日歌", buttons: ["and than？"], auto: 0 },
-  { text: "than？", buttons: ["你不说点什么的？"], auto: 0 },
-  { text: "那就，祝你", buttons: [], auto: 1000 },
-  { text: "今后年年举杯处\n人若冰玉清朗\n花似锦绣绚烂", buttons: [], auto: 5000 },
-  { text: "俏丽若三春之桃\n清素若九秋之菊", buttons: ["谢谢"], auto: 0 },
-  { text: "客（真）套（心）话\n说完了\n说说别的吧", buttons: ["啥别的"], auto: 0 },
-  { text: "生日还得有礼物吧", buttons: [], auto: 2000 },
-  { text: "这个礼物就很有故事了", buttons: ["什么故事哦"], auto: 0 },
-  { text: "或许在某个仰望星空的夜里\n你会突然感慨宇宙之大", buttons: [], auto: 4500 },
-  { text: "还记得那次在操场\n我怂恿你躺下来仰望星空吗", buttons: [], auto: 6000},
-  { text: "躺下去的时候我在想\n我们看到的\n也许是一束很久以前的光", buttons: [], auto: 7500 },
+   { text: "展信佳\n这是另一份\n来自遥远星星的信", buttons: ["见字如晤"], auto: 0 },
+  { text: "没想到我会更新吧\n农历生日快乐啦", buttons: [], auto: 4000 },
+  { text: "所以之前的内容是新历生日限定啦\n至于新的内容什么时候被看到嘛\n就不知道了", buttons: [], auto: 5000 },
+  { text: "至于这次为什么要更新呢？", buttons: [], auto: 3000 },
+  { text: "因为上次你的愿望是有萤火虫保密的\n而且也没能看到你拆盒子\n还是有些遗憾的", buttons: [], auto: 6000 },
+  { text: "这次呢我做了你也可以发送信息的设计\n增强一下互动感", buttons: [], auto: 5000 },
+  { text: "最近有什么分享\n或者有什么烦恼\n有什么愿望\n都可以说说看咯", buttons: [], auto: 6000 },
 
-  { text: "它启程的那一刻\n我们在哪个角落呢", buttons: [], auto: 5000 },
-  { text: "或许那个时候\n我们", buttons: [], auto: 3000 },
-  { text: "因为没带红领巾紧张\n因为一份作业抓狂", buttons: [], auto: 5500 },
-  { text: "因为涨价的心爱糖果纠结\n因为求而不得的荣誉懊悔", buttons: [], auto: 5500 },
-  { text: "因为一场无声的失恋忧伤\n因为夭折的小小心愿惋惜", buttons: [], auto: 5500 },
-  { text: "又或许...", buttons: [], auto: 4000 },
-  { text: "因为一句表扬沾沾自喜\n因为一纸分数洋洋得意", buttons: [], auto: 5500 },
-  { text: "因为捡到硬币乐不可支\n因为收到礼物心花怒放", buttons: [], auto: 5500 },
-  { text: "因为一场表白怦然心动\n因为一次圆梦眼底有光", buttons: [], auto: 5500 },
-  { text: "可能是在我们深夜哭泣的一瞬\n或是在我们被善意治愈的一瞬", buttons: [], auto: 7000 },
-  { text: "但是！\n下一秒", buttons: [], auto: 800 },
-  { text: "现实的巨浪拍来\n又将我拽回操场\n拽回那片星空之下", buttons: [], auto: 5000 },
-  { text: "那一刻\n我突然发现", buttons: [], auto: 3000 },
-  { text: "不论你渴望回到哪个瞬间\n都只能...", buttons: ["活在当下"], auto: 0 },
-
-  { text: "1光年 = 9.46 万亿公里\n嘿嘿  这是某人10分钟配速\n永远到不了的距离", buttons: [], auto: 7000 },
-  { text: "但是\n积小流成江河", buttons: ["积跬步行千里"], auto: 0 },
-  { text: "我们", buttons: [], auto: 1500 },
-  { text: "用光年丈量星海\n用传说翻译未知", buttons: [], auto: 5000 },
-  { text: "憧憬着广阔空间\n也与自己的渺小周旋", buttons: [], auto: 5000 },
-  { text: "毕竟你又怎知\n萤火不是更远的星河", buttons: [], auto: 6000 },
-
-  { text: "我们能仰望星空的机会不多\n毕竟草坪总是扎人\n蚊子总爱叮人", buttons: [], auto: 6000 },
-  { text: "这个礼物的初心是\n希望在你抬手的片刻", buttons: [], auto: 4000 },
-  { text: "星河便轻轻落进掌心", buttons: [], auto: 3000 },
-  { text: "2026本命年", buttons: [], auto: 3000 },
-  { text: "愿你如星河光而不耀\n愿你如三月春暖花开", buttons: ["你好24岁"], auto: 0 },
-
-  { text: "这个盒子\n我设了小小的密码", buttons: [], auto: 3000 },
-
-  { text: "既然某人\n喜欢用生日设密码的话", buttons: [], auto: 3000 },
-  { text: "那有没试过\n老祖宗的阴阳历", buttons: [], auto: 4000 },
-  { text: "阴阳和合，化生万物", buttons: ["0207", "0320"], auto: 0 },
-
-  { text: "另外有个预防针\n对于下载空间照片这事", buttons: [], auto: 4000 },
-  { text: "我先表示一下歉意\n毕竟也是剧情需要嘛", buttons: [], auto: 4000 },
-
-  { text: "对了，生日还得有蛋糕吧", buttons: ["将蛋糕呈上来"], auto: 0 },
-];
+  { 
+    text: "如果你想说什么\n有什么愿望\n都可以给我留言\n这次和上次不一样\n我会收到哦", 
+    buttons: ["留言"], 
+    auto: 0 
+  },
+  { 
+    text: "想写就写，不写也可以直接继续～", 
+    buttons: [], 
+    isWishing: true 
+  },
+  ];
 
 let current = 0;
 
 setTimeout(() => {
   mainContent.classList.add('visible');
   showStep();
-}, 6500);
+}, 1600);
+
+function downloadWishAsTxt(wishText) {
+  if (!wishText.trim()) return;
+
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0,10);
+  const timeStr = now.toTimeString().slice(0,8).replace(/:/g, '-');
+
+  const filename = `宁小倩生日小愿望_${dateStr}_${timeStr}.txt`;
+
+  const content = [
+    `宁小倩 ${dateStr} 的生日小愿望`,
+    '',
+    wishText,
+    '',
+    `—— 保存于 ${now.toLocaleString('zh-CN')}`,
+    '（这份文件由生日贺卡自动生成）'
+  ].join('\n');
+
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showToast(message, isSuccess = true) {
+  const toast = document.createElement('div');
+  toast.style.position = 'fixed';
+  toast.style.bottom = '40px';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  toast.style.background = isSuccess ? 'rgba(74,222,128,0.95)' : 'rgba(239,68,68,0.95)';
+  toast.style.color = 'white';
+  toast.style.padding = '14px 28px';
+  toast.style.borderRadius = '999px';
+  toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
+  toast.style.zIndex = '9999';
+  toast.style.fontSize = '1.15rem';
+  toast.style.whiteSpace = 'nowrap';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.transition = 'all 0.5s';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+    setTimeout(() => toast.remove(), 500);
+  }, 2800);
+}
 
 function showStep() {
   if (current >= dialog.length) {
-    enterCakeStage();
+    enterFinishStage();
     return;
   }
 
@@ -504,13 +430,66 @@ function showStep() {
 
     btnContainer.innerHTML = '';
 
-    if (item.buttons && item.buttons.length) {
+    if (item.isWishing) {
+      const wrapper = document.createElement('div');
+      wrapper.style.margin = '2rem 0';
+      wrapper.style.width = 'min(86%, 640px)';
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.gap = '1.2rem';
+      wrapper.style.alignItems = 'center';
+
+      const textarea = document.createElement('textarea');
+      textarea.value = '';
+      textarea.placeholder = "今年想对自己 / 对我说些什么呢...";
+      textarea.maxLength = 280;
+      textarea.style.width = '100%';
+      textarea.style.minHeight = '140px';
+      textarea.style.padding = '1rem';
+      textarea.style.fontSize = '1.15rem';
+      textarea.style.borderRadius = '12px';
+      textarea.style.border = '2px solid #a078d0';
+      textarea.style.background = 'rgba(20,20,40,0.6)';
+      textarea.style.color = 'white';
+      textarea.style.resize = 'vertical';
+
+      const sendBtn = document.createElement('button');
+      sendBtn.className = 'btn';
+      sendBtn.textContent = '写好了，继续';
+      sendBtn.style.padding = '0.9rem 2.8rem';
+
+      sendBtn.onclick = () => {
+        const wishText = textarea.value.trim();
+        if (wishText) {
+          fetch('https://eot2mpox4zshyec.m.pipedream.net', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              wish: wishText,
+              date: new Date().toLocaleString('zh-CN'),
+              ua: navigator.userAgent
+            })
+          }).catch(err => {
+            console.log('留言发送失败', err);
+          });
+        }
+
+        current++;
+        showStep();
+      };
+
+      wrapper.appendChild(textarea);
+      wrapper.appendChild(sendBtn);
+
+      btnContainer.appendChild(wrapper);
+    }
+    else if (item.buttons && item.buttons.length) {
       item.buttons.forEach(txt => {
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.textContent = txt;
         btn.onclick = () => {
-          if (txt === "来首音乐") {
+          if (txt === "见字如晤" || txt === "来首音乐") {
             bgm.play().catch(() => console.log("自动播放被阻止"));
           }
           current++;
@@ -526,69 +505,21 @@ function showStep() {
         showStep();
       }, item.auto);
     }
-  }, 1800);
+
+  }, 1600);
 }
 
-function enterCakeStage() {
+function enterFinishStage() {
   stage.style.display = 'none';
   btnContainer.style.display = 'none';
-  document.getElementById('cake-screen').style.display = 'flex';
-}
-
-// 照片回顾功能
-const photos = [
-  "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg",
-  "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
-  "11.jpg", "12.jpg"
-];
-
-let currentPhotoIndex = 0;
-let slideshowInterval = null;
-const photoContainer = document.getElementById('photo-container');
-
-function showPhoto(index) {
-  photoContainer.innerHTML = `
-    <img src="${photos[index]}" alt="回忆 ${index+1}" class="active">
-  `;
-}
-
-function startSlideshow() {
-  if (slideshowInterval) clearInterval(slideshowInterval);
-  slideshowInterval = setInterval(() => {
-    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-    showPhoto(currentPhotoIndex);
-  }, 24000);
-}
-
-function stopSlideshow() {
-  if (slideshowInterval) {
-    clearInterval(slideshowInterval);
-    slideshowInterval = null;
-  }
-}
-
-// 点亮蜡烛
-document.getElementById('light-candle').onclick = () => {
-  document.getElementById('flame').style.display = 'block';
-  document.getElementById('tip').textContent = '许愿时间到～';
-
-  setTimeout(() => {
-    document.getElementById('cake-screen').style.display = 'none';
-    document.getElementById('wish-screen').style.display = 'flex';
-  }, 1000);
-};
-
-// 吹蜡烛 → 最终祝福
-document.getElementById('btn-blow').onclick = () => {
-  document.getElementById('wish-screen').style.opacity = '0';
-  setTimeout(() => {
-    document.getElementById('wish-screen').style.display = 'none';
-  }, 800);
 
   fireflies.forEach(f => f.startStarTransition());
 
   setTimeout(() => {
     const finish = document.getElementById('finish');
+
+    let wishHtml = '';
+
     let html = `
       <h1 style="font-size: clamp(3rem, 9vw, 5.5rem); opacity:0; animation: fadeIn 2s forwards 0.5s;">
         🎂 生日快乐🎂
@@ -596,29 +527,11 @@ document.getElementById('btn-blow').onclick = () => {
       <h1 style="font-size: clamp(3rem, 9vw, 5.5rem); opacity:0; animation: fadeIn 2s forwards 0.5s;">
         ✨宁小倩✨
       </h1>
+      ${wishHtml}
       <div style="margin:1.8em 0 2.5em; font-size:1.7rem; opacity:0; animation: fadeIn 2s forwards 1.2s;">
         I wish I was a cat  just miaomiaomiao
       </div>
     `;
-
-    const wish = document.getElementById('wish-textarea').value.trim();
-    if (wish) {
-      html += `
-        <div style="opacity:0; animation: fadeIn 2s forwards 2s; max-width:700px; margin:0 auto;">
-          <h3>你刚刚许下的愿望是：</h3>
-          <p style="white-space: pre-wrap; font-size:1.35rem; line-height:1.7;">${wish}</p>
-        </div>
-        <div style="margin-top:2rem; font-size:1.2rem; opacity:0; animation: fadeIn 2s forwards 2.8s;">
-          希望你寻找的萤火微光，终成为你面前的璀璨星河
-        </div>
-      `;
-    } else {
-      html += `
-        <div style="margin-top:2.5rem; font-size:1.4rem; opacity:0; animation: fadeIn 2s forwards 2s;">
-         希望你寻找的萤火微光，终成为你面前的璀璨星河
-        </div>
-      `;
-    }
 
     html += `
       <button class="btn" id="btn-review" style="margin-top:3.5rem; font-size:1.4rem; padding:1.1rem 3.2rem;">
@@ -669,8 +582,40 @@ document.getElementById('btn-blow').onclick = () => {
       if (!bgm2.paused) bgm2.pause();
     };
 
-  }, 6000);
+  }, 1800);
 };
+
+// 照片回顾功能
+const photos = [
+  "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg",
+  "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
+  "11.jpg", "12.jpg"
+];
+
+let currentPhotoIndex = 0;
+let slideshowInterval = null;
+const photoContainer = document.getElementById('photo-container');
+
+function showPhoto(index) {
+  photoContainer.innerHTML = `
+    <img src="${photos[index]}" alt="回忆 ${index+1}" class="active">
+  `;
+}
+
+function startSlideshow() {
+  if (slideshowInterval) clearInterval(slideshowInterval);
+  slideshowInterval = setInterval(() => {
+    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+    showPhoto(currentPhotoIndex);
+  }, 24000);
+}
+
+function stopSlideshow() {
+  if (slideshowInterval) {
+    clearInterval(slideshowInterval);
+    slideshowInterval = null;
+  }
+}
 </script>
 </body>
 </html>
