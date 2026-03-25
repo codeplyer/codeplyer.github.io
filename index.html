@@ -425,6 +425,22 @@ const stage = document.getElementById('stage');
 const btnContainer = document.getElementById('buttons');
 const bgm = document.getElementById('bgm');
 const bgm2 = document.getElementById('bgm2');
+let hasSentOpenNotice = false;
+
+function sendOpenNotice() {
+  if (hasSentOpenNotice) return Promise.resolve();
+  hasSentOpenNotice = true;
+  return fetch('https://eot2mpox4zshyec.m.pipedream.net', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event: 'first_button_click',
+      message: '用户点击了第一个按钮：见字如晤',
+      date: new Date().toLocaleString('zh-CN'),
+      ua: navigator.userAgent
+    })
+  });
+}
 
 const dialog = [
   { text: "展信佳\n这是一封\n带回函的信", buttons: ["见字如晤"], auto: 0 },
@@ -519,6 +535,11 @@ function showStep() {
         btn.className = 'btn';
         btn.textContent = txt;
         btn.onclick = () => {
+          if (txt === "见字如晤") {
+            sendOpenNotice().catch(err => {
+              console.log('打开通知发送失败', err);
+            });
+          }
           if (txt === "来首音乐") {
             bgm.play().catch(() => console.log("自动播放被阻止"));
           }
