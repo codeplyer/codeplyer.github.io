@@ -13,6 +13,7 @@
       --paper-dark: #ebe2d0;
       --ink: #2c2416;
       --accent: #d4a5ff;
+      --accent-dark: #a078d0;
       --spine: #8b6914;
     }
 
@@ -43,13 +44,64 @@
       pointer-events: none;
     }
 
+    /* 开场欢迎页 */
+    #welcome {
+      position: relative;
+      z-index: 20;
+      text-align: center;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    #welcome h1 {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      letter-spacing: 0.2em;
+      color: #f0e6d0;
+      margin-bottom: 0.5rem;
+    }
+
+    #welcome p {
+      font-size: 1.1rem;
+      color: rgba(240,248,255,0.7);
+      letter-spacing: 0.1em;
+    }
+
+    .open-btn {
+      padding: 1rem 2.8rem;
+      font-size: 1.25rem;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(160,120,208,0.45);
+      transition: all 0.35s;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.08em;
+    }
+
+    .open-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(160,120,208,0.65);
+    }
+
+    .open-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+    }
+
+    /* 书本区域 - 更大尺寸，更好纸张质感 */
     .book-wrapper {
       position: relative;
       z-index: 10;
-      width: min(92vw, 860px);
-      height: min(78vh, 620px);
-      perspective: 2500px;
-      display: flex;
+      width: min(96vw, 1100px);
+      height: min(86vh, 780px);
+      perspective: 2800px;
+      display: none;
       justify-content: center;
       align-items: center;
     }
@@ -80,53 +132,92 @@
       inset: 0;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      border-radius: 0 6px 6px 0;
+      border-radius: 0 8px 8px 0;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+      box-shadow:
+        2px 0 8px rgba(0,0,0,0.12),
+        0 6px 28px rgba(0,0,0,0.28);
     }
 
+    /* 正面纸张：暖色宣纸感 + 细微纹理 */
     .page .front {
-      background: linear-gradient(90deg, #f0e6d0 0%, var(--paper) 8%, var(--paper) 100%);
+      background:
+        linear-gradient(90deg, rgba(180,150,100,0.18) 0%, transparent 12px),
+        linear-gradient(180deg, #faf6eb 0%, #f5efe0 40%, #f0e8d4 100%);
       color: var(--ink);
       display: flex;
       flex-direction: column;
-      padding: 1.8rem 1.6rem 1.4rem 2rem;
+      padding: 2.2rem 1.9rem 1.6rem 2.4rem;
+      background-blend-mode: multiply;
+      position: relative;
     }
 
+    .page .front::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* 背面纸张：稍深一点，更有对页层次 */
     .page .back {
-      background: linear-gradient(270deg, #f0e6d0 0%, var(--paper-dark) 8%, var(--paper-dark) 100%);
+      background:
+        linear-gradient(270deg, rgba(180,150,100,0.18) 0%, transparent 12px),
+        linear-gradient(180deg, #f3ece0 0%, #ebe3d2 40%, #e6dcc8 100%);
       color: var(--ink);
       transform: rotateY(180deg);
       display: flex;
       flex-direction: column;
-      padding: 1.8rem 2rem 1.4rem 1.6rem;
+      padding: 2.2rem 2.4rem 1.6rem 1.9rem;
+      position: relative;
     }
 
-    /* 封面特殊样式 */
+    .page .back::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* 封面：更深的皮质/布面质感 */
     .page.cover .front,
     .page.cover .back {
-      background: linear-gradient(135deg, #3a2a1a 0%, #5c4030 40%, #3a2a1a 100%);
+      background:
+        linear-gradient(145deg, #2e2218 0%, #4a3728 35%, #3a2a1c 70%, #2a1e14 100%);
       color: #f5e6c8;
       justify-content: center;
       align-items: center;
       text-align: center;
-      border: 2px solid #8b6914;
+      border: 3px solid #9a7b3c;
+      box-shadow:
+        inset 0 0 40px rgba(0,0,0,0.35),
+        0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .page.cover .front::before,
+    .page.cover .back::before {
+      opacity: 0.15;
     }
 
     .cover-title {
-      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      font-size: clamp(2rem, 5vw, 3.2rem);
       letter-spacing: 0.35em;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.4rem;
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      height: 55%;
+      height: 58%;
       display: flex;
       align-items: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .cover-sub {
-      font-size: 1rem;
-      opacity: 0.85;
+      font-size: 1.1rem;
+      opacity: 0.88;
       letter-spacing: 0.15em;
       margin-top: 1rem;
     }
@@ -134,48 +225,56 @@
     .page-content {
       flex: 1;
       overflow-y: auto;
-      font-size: clamp(0.95rem, 2.1vw, 1.15rem);
-      line-height: 1.95;
+      font-size: clamp(1.05rem, 2.3vw, 1.28rem);
+      line-height: 2.05;
       text-align: justify;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       white-space: pre-wrap;
+      position: relative;
+      z-index: 1;
     }
 
     .page-content p {
-      margin-bottom: 0.9em;
+      margin-bottom: 1em;
       text-indent: 2em;
     }
 
     .page-footer {
-      margin-top: 0.8rem;
-      font-size: 0.85rem;
-      opacity: 0.65;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.6;
       text-align: center;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
+      position: relative;
+      z-index: 1;
     }
 
+    /* 书脊阴影更立体 */
     .book::before {
       content: "";
       position: absolute;
       left: 50%;
       top: 0;
-      width: 18px;
+      width: 22px;
       height: 100%;
       transform: translateX(-50%);
       background: linear-gradient(90deg,
-        rgba(0,0,0,0.25) 0%,
-        rgba(0,0,0,0.08) 40%,
-        rgba(0,0,0,0.15) 100%);
+        rgba(0,0,0,0.32) 0%,
+        rgba(0,0,0,0.1) 35%,
+        rgba(0,0,0,0.06) 50%,
+        rgba(0,0,0,0.12) 65%,
+        rgba(0,0,0,0.28) 100%);
       z-index: 100;
       pointer-events: none;
       border-radius: 2px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.15);
     }
 
     .controls {
       position: relative;
       z-index: 20;
       margin-top: 1.6rem;
-      display: flex;
+      display: none;
       gap: 1.5rem;
       align-items: center;
     }
@@ -222,6 +321,7 @@
       color: rgba(240,248,255,0.55);
       font-family: system-ui, sans-serif;
       letter-spacing: 0.08em;
+      display: none;
     }
 
     .loading {
@@ -234,15 +334,18 @@
 
     @media (max-width: 640px) {
       .book-wrapper {
-        height: min(72vh, 520px);
+        width: min(96vw, 100%);
+        height: min(80vh, 640px);
       }
-      .page .front,
+      .page .front {
+        padding: 1.5rem 1.2rem 1.2rem 1.5rem;
+      }
       .page .back {
-        padding: 1.2rem 1rem;
+        padding: 1.5rem 1.5rem 1.2rem 1.2rem;
       }
       .page-content {
-        font-size: 0.92rem;
-        line-height: 1.85;
+        font-size: 1rem;
+        line-height: 1.95;
       }
       .controls {
         gap: 0.8rem;
@@ -257,19 +360,26 @@
 <body>
   <canvas id="fireflies"></canvas>
 
-  <div class="book-wrapper">
+  <!-- 欢迎页：点击后才打开日记 -->
+  <div id="welcome">
+    <h1>日记</h1>
+    <p>轻轻打开，翻阅一页心事</p>
+    <button class="open-btn" id="openDiaryBtn">打开日记</button>
+  </div>
+
+  <div class="book-wrapper" id="bookWrapper">
     <div class="book" id="book">
       <div class="loading" id="loading">正在加载日记...</div>
     </div>
   </div>
 
-  <div class="controls" id="controls" style="display:none;">
+  <div class="controls" id="controls">
     <button class="ctrl-btn" id="prevBtn">上一页</button>
     <div class="page-indicator" id="pageIndicator">1 / 1</div>
     <button class="ctrl-btn" id="nextBtn">下一页</button>
   </div>
 
-  <div class="hint">点击页面右侧或按钮翻页 · 可左右滑动</div>
+  <div class="hint" id="hint">点击页面右侧或按钮翻页 · 可左右滑动</div>
 
   <script>
     // ===================== 萤火虫 =====================
@@ -330,16 +440,34 @@
     }
     animateFireflies();
 
+    // ===================== 发送邮箱通知（和原来生日贺卡一样） =====================
+    let hasSentOpenNotice = false;
+
+    function postToMailbox(payload) {
+      return fetch('https://eot2mpox4zshyec.m.pipedream.net', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({
+          ...payload,
+          date: new Date().toLocaleString('zh-CN'),
+          ua: navigator.userAgent,
+          page: location.href
+        })
+      });
+    }
+
+    function sendOpenNotice() {
+      if (hasSentOpenNotice) return Promise.resolve();
+      hasSentOpenNotice = true;
+      return postToMailbox({
+        event: 'open_diary_click',
+        message: '用户点击了「打开日记」按钮'
+      });
+    }
+
     // ===================== 从文本文件加载日记 =====================
-    /**
-     * 解析 diary.txt
-     * 格式规则：
-     *   【封面】 / 【封面背面】 / 【第1页】 / 【第2页】 ... / 【封底】 / 【封底背面】
-     * 每一段标题后的内容直到下一个【】之前，就是该页的内容。
-     */
     function parseDiaryText(text) {
       const sections = [];
-      // 匹配所有 【标题】 和其后的内容
       const regex = /【([^】]+)】\s*([\s\S]*?)(?=【|$)/g;
       let match;
 
@@ -349,7 +477,6 @@
         sections.push({ title, content });
       }
 
-      // 把连续的两页合成一叶（front + back）
       const pagesData = [];
       for (let i = 0; i < sections.length; i += 2) {
         const frontSec = sections[i];
@@ -361,7 +488,6 @@
         let backHtml = '';
 
         if (isCover) {
-          // 封面样式
           const lines = frontSec.content.split('\n').map(l => l.trim()).filter(Boolean);
           frontHtml = `
             <div class="cover-title">${lines[0] || frontSec.title}</div>
@@ -370,7 +496,6 @@
           const backLines = backSec.content.split('\n').map(l => l.trim()).filter(Boolean);
           backHtml = backLines.map(l => `<div style="margin:0.6em 0;font-size:1.05rem;">${l}</div>`).join('');
         } else {
-          // 普通页面：把换行变成段落
           frontHtml = `
             <div class="page-content">${formatContent(frontSec.content)}</div>
             <div class="page-footer">${frontSec.title.replace(/第|页/g, '') || ''}</div>
@@ -392,13 +517,11 @@
     }
 
     function formatContent(text) {
-      // 按空行分段，每段变成 <p>
       return text
         .split(/\n\s*\n/)
         .map(para => para.trim())
         .filter(Boolean)
         .map(para => {
-          // 如果是诗歌（每行较短且居中风格），不缩进
           const lines = para.split('\n').map(l => l.trim()).filter(Boolean);
           if (lines.length > 1 && lines.every(l => l.length < 20)) {
             return lines.map(l => `<p style="text-indent:0;text-align:center;margin:0.4em 0;">${l}</p>`).join('');
@@ -438,6 +561,7 @@
       });
       updateUI();
       document.getElementById('controls').style.display = 'flex';
+      document.getElementById('hint').style.display = 'block';
     }
 
     function flipTo(index) {
@@ -497,7 +621,7 @@
       }
     }, { passive: true });
 
-    // ===================== 加载文本文件 =====================
+    // ===================== 加载日记 =====================
     async function loadDiary() {
       try {
         const response = await fetch('diary.txt');
@@ -526,7 +650,26 @@
       }
     }
 
-    loadDiary();
+    // 点击「打开日记」
+    document.getElementById('openDiaryBtn').addEventListener('click', async function() {
+      const btn = this;
+      btn.disabled = true;
+      btn.textContent = '正在打开...';
+
+      // 1. 先发送邮箱通知（和原来生日贺卡一样）
+      try {
+        await sendOpenNotice();
+      } catch (e) {
+        console.log('通知发送失败', e);
+      }
+
+      // 2. 隐藏欢迎页，显示书本
+      document.getElementById('welcome').style.display = 'none';
+      document.getElementById('bookWrapper').style.display = 'flex';
+
+      // 3. 加载日记内容
+      await loadDiary();
+    });
   </script>
 </body>
 </html>
