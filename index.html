@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>日记</title>
+  <title>墙墙心事</title>
   <style>
     :root {
       --bg: #0a0f1a;
@@ -278,12 +278,6 @@
       display: none;
     }
 
-    .music-tip {
-      font-size: 0.85rem;
-      color: rgba(240,248,255,0.45);
-      margin-top: 0.5rem;
-      font-family: system-ui, sans-serif;
-    }
 
     @media (max-width: 700px) {
       .book-wrapper {
@@ -299,20 +293,87 @@
         line-height: 1.9;
       }
     }
+
+    /* 留言面板 */
+    #messagePanel {
+      display: none;
+      position: relative;
+      z-index: 25;
+      width: min(90vw, 480px);
+      background: rgba(20, 25, 35, 0.92);
+      border: 1px solid rgba(212, 165, 255, 0.35);
+      border-radius: 20px;
+      padding: 1.8rem 1.6rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      text-align: center;
+    }
+
+    #messagePanel h3 {
+      font-size: 1.25rem;
+      color: #f0e6d0;
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+    }
+
+    #messagePanel p.desc {
+      font-size: 0.9rem;
+      color: rgba(240,248,255,0.55);
+      margin-bottom: 1.2rem;
+      font-family: system-ui, sans-serif;
+    }
+
+    #messageInput {
+      width: 100%;
+      min-height: 110px;
+      padding: 0.9rem 1rem;
+      font-size: 1.05rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(212,165,255,0.28);
+      border-radius: 14px;
+      color: white;
+      resize: vertical;
+      margin-bottom: 1.2rem;
+      font-family: system-ui, sans-serif;
+      outline: none;
+    }
+
+    #messageInput::placeholder {
+      color: rgba(240,248,255,0.4);
+    }
+
+    #messageInput:focus {
+      border-color: rgba(212,165,255,0.55);
+    }
+
+    .msg-actions {
+      display: flex;
+      gap: 0.9rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    #msgStatus {
+      margin-top: 0.9rem;
+      font-size: 0.9rem;
+      color: #c9b8e8;
+      font-family: system-ui, sans-serif;
+      min-height: 1.2em;
+    }
+
   </style>
 </head>
 <body>
   <canvas id="fireflies"></canvas>
 
-  <audio id="bgm" loop preload="auto">
-    <source src="bgm.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="bgm" loop preload="auto"></audio>
 
   <div id="welcome">
     <h1>日记</h1>
     <p>轻轻打开，翻阅一页心事</p>
     <button class="open-btn" id="openDiaryBtn">打开日记</button>
-    <div class="music-tip">打开后将播放背景音乐（需有 bgm.mp3）</div>
+    
   </div>
 
   <div class="book-wrapper" id="bookWrapper">
@@ -335,6 +396,18 @@
   </div>
 
   <div class="hint" id="hint">点击右侧页面或按钮翻页 · 可左右滑动</div>
+
+  <div id="messagePanel">
+    <h3>留一句话吧</h3>
+    <p class="desc">写点什么，会送到日记主人的邮箱</p>
+    <textarea id="messageInput" placeholder="想说的话写在这里……"></textarea>
+    <div class="msg-actions">
+      <button class="ctrl-btn" id="backToBookBtn" style="background:linear-gradient(135deg,#6b7280,#4b5563);">返回日记</button>
+      <button class="ctrl-btn" id="sendMsgBtn">发送</button>
+    </div>
+    <div id="msgStatus"></div>
+  </div>
+
 
   <script>
     const canvas = document.getElementById('fireflies');
@@ -514,7 +587,7 @@
       const end = Math.min(rightIdx + 1, pages.length);
       document.getElementById('pageIndicator').textContent = `${start}-${end} / ${pages.length}`;
       document.getElementById('prevBtn').disabled = false;
-      document.getElementById('nextBtn').disabled = rightIdx >= pages.length - 1;
+      document.getElementById('nextBtn').disabled = false; // 最后一页点下一页可进入留言
     }
 
     function nextPage() {
@@ -524,10 +597,17 @@
       }
       if (spreadIndex < totalSpreads - 1) {
         showSpread(spreadIndex + 1);
+      } else {
+        // 已经是最后一对开页 → 进入留言
+        showMessagePanel();
       }
     }
 
     function prevPage() {
+      if (document.getElementById('messagePanel').style.display === 'block') {
+        hideMessagePanel();
+        return;
+      }
       if (showingCover) return;
       if (spreadIndex <= 0) {
         showCover();
@@ -536,11 +616,56 @@
       }
     }
 
+    function showMessagePanel() {
+      document.getElementById('bookWrapper').style.display = 'none';
+      document.getElementById('controls').style.display = 'none';
+      document.getElementById('hint').style.display = 'none';
+      document.getElementById('messagePanel').style.display = 'block';
+      document.getElementById('msgStatus').textContent = '';
+    }
+
+    function hideMessagePanel() {
+      document.getElementById('messagePanel').style.display = 'none';
+      document.getElementById('bookWrapper').style.display = 'flex';
+      document.getElementById('controls').style.display = 'flex';
+      document.getElementById('hint').style.display = 'block';
+      // 回到最后一对开页
+      if (totalSpreads > 0) showSpread(totalSpreads - 1);
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const status = document.getElementById('msgStatus');
+      const text = (input.value || '').trim();
+      if (!text) {
+        status.textContent = '先写点什么再发送吧～';
+        return;
+      }
+      const btn = document.getElementById('sendMsgBtn');
+      btn.disabled = true;
+      status.textContent = '发送中...';
+      postToMailbox({
+        event: 'diary_message',
+        message: text,
+        wish: text
+      }).then(() => {
+        status.textContent = '已送达，谢谢你的留言 ♥';
+        input.value = '';
+        btn.disabled = false;
+      }).catch(err => {
+        console.log('留言发送失败', err);
+        status.textContent = '发送失败，请稍后再试';
+        btn.disabled = false;
+      });
+    }
+
     document.getElementById('prevBtn').addEventListener('click', prevPage);
     document.getElementById('nextBtn').addEventListener('click', nextPage);
     coverPage.addEventListener('click', nextPage);
     rightPage.addEventListener('click', nextPage);
     leftPage.addEventListener('click', prevPage);
+    document.getElementById('sendMsgBtn').addEventListener('click', sendMessage);
+    document.getElementById('backToBookBtn').addEventListener('click', hideMessagePanel);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextPage(); }
@@ -597,8 +722,24 @@
 
       try { await sendOpenNotice(); } catch (e) { console.log('通知发送失败', e); }
 
+      // 从多首背景音乐中随机选，找不到就换下一首，直到找到能播的
+      const musicList = ['bgm1.mp3', 'bgm2.mp3', 'bgm3.mp3', 'bgm4.mp3', 'bgm5.mp3', 'bgm6.mp3', 'bgm7.mp3', 'bgm8.mp3', 'bgm9.mp3', 'bgm10.mp3'];
+      // 打乱顺序，依次尝试
+      const shuffled = musicList.slice().sort(() => Math.random() - 0.5);
       bgm.volume = 0.45;
-      bgm.play().catch(e => console.log('音乐播放被阻止或文件不存在', e));
+      (async function tryPlayMusic() {
+        for (const file of shuffled) {
+          try {
+            bgm.src = file;
+            await bgm.play();
+            console.log('正在播放:', file);
+            return; // 成功就停止尝试
+          } catch (e) {
+            console.log('跳过（不存在或无法播放）:', file);
+          }
+        }
+        console.log('没有找到可播放的背景音乐');
+      })();
 
       document.getElementById('welcome').style.display = 'none';
       document.getElementById('bookWrapper').style.display = 'flex';
