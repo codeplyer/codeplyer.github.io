@@ -3,726 +3,530 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>一份致宁小倩の生日贺卡</title>
+  <title>日记</title>
   <style>
     :root {
       --bg: #0a0f1a;
       --grass: #0b1e0b;
       --text: #f0f8ff;
+      --paper: #f7f0e0;
+      --paper-dark: #ebe2d0;
+      --ink: #2c2416;
       --accent: #d4a5ff;
-      --accent-dark: #a078d0;
+      --spine: #8b6914;
     }
-    body {
+
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
       height: 100vh;
-      background: linear-gradient(to bottom, var(--grass) 35%, var(--bg) 70%);
+      background: linear-gradient(to bottom, var(--grass) 30%, var(--bg) 70%);
       color: var(--text);
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: "Songti SC", "SimSun", "STSong", "Noto Serif SC", serif;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      text-align: center;
       position: relative;
+      user-select: none;
     }
+
     canvas#fireflies {
       position: fixed;
       inset: 0;
       z-index: 1;
       pointer-events: none;
     }
-    .main-content {
+
+    .book-wrapper {
       position: relative;
       z-index: 10;
-      width: 100%;
-      max-width: 900px;
-      padding: 1rem;
+      width: min(92vw, 860px);
+      height: min(78vh, 620px);
+      perspective: 2500px;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 60vh;
-      opacity: 0;
-      transition: opacity 2.8s ease 6.5s;
     }
-    .main-content.visible {
-      opacity: 1;
+
+    .book {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
     }
-    #stage {
-      font-size: clamp(1.5rem, 5vw, 2.5rem);
-      line-height: 1.7;
-      white-space: pre-wrap;
-      opacity: 0;
-      transform: translateY(40px);
-      transition: all 1.4s ease-out;
+
+    .page {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50%;
+      height: 100%;
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+      cursor: pointer;
     }
-    #stage.visible {
-      opacity: 1;
-      transform: translateY(0);
+
+    .page .front,
+    .page .back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 0 6px 6px 0;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
     }
-    .buttons {
-      margin-top: 2.5rem;
+
+    .page .front {
+      background: linear-gradient(90deg, #f0e6d0 0%, var(--paper) 8%, var(--paper) 100%);
+      color: var(--ink);
       display: flex;
-      justify-content: center;
-      gap: 1.8rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      padding: 1.8rem 1.6rem 1.4rem 2rem;
     }
-    .btn {
-      padding: 0.95rem 2.4rem;
-      font-size: 1.22rem;
+
+    .page .back {
+      background: linear-gradient(270deg, #f0e6d0 0%, var(--paper-dark) 8%, var(--paper-dark) 100%);
+      color: var(--ink);
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      padding: 1.8rem 2rem 1.4rem 1.6rem;
+    }
+
+    /* 封面特殊样式 */
+    .page.cover .front,
+    .page.cover .back {
+      background: linear-gradient(135deg, #3a2a1a 0%, #5c4030 40%, #3a2a1a 100%);
+      color: #f5e6c8;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border: 2px solid #8b6914;
+    }
+
+    .cover-title {
+      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      letter-spacing: 0.35em;
+      margin-bottom: 1.2rem;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      height: 55%;
+      display: flex;
+      align-items: center;
+    }
+
+    .cover-sub {
+      font-size: 1rem;
+      opacity: 0.85;
+      letter-spacing: 0.15em;
+      margin-top: 1rem;
+    }
+
+    .page-content {
+      flex: 1;
+      overflow-y: auto;
+      font-size: clamp(0.95rem, 2.1vw, 1.15rem);
+      line-height: 1.95;
+      text-align: justify;
+      letter-spacing: 0.04em;
+      white-space: pre-wrap;
+    }
+
+    .page-content p {
+      margin-bottom: 0.9em;
+      text-indent: 2em;
+    }
+
+    .page-footer {
+      margin-top: 0.8rem;
+      font-size: 0.85rem;
+      opacity: 0.65;
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+
+    .book::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 18px;
+      height: 100%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.25) 0%,
+        rgba(0,0,0,0.08) 40%,
+        rgba(0,0,0,0.15) 100%);
+      z-index: 100;
+      pointer-events: none;
+      border-radius: 2px;
+    }
+
+    .controls {
+      position: relative;
+      z-index: 20;
+      margin-top: 1.6rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .ctrl-btn {
+      padding: 0.7rem 1.8rem;
+      font-size: 1.05rem;
       color: white;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      background: linear-gradient(135deg, #a078d0, #7a5aa8);
       border: none;
       border-radius: 999px;
       cursor: pointer;
-      box-shadow: 0 7px 22px rgba(160,120,208,0.4);
-      transition: all 0.35s;
-    }
-    .btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 35px rgba(160,120,208,0.65);
+      box-shadow: 0 6px 18px rgba(160,120,208,0.35);
+      transition: all 0.3s;
+      font-family: system-ui, sans-serif;
     }
 
-    #cake-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
+    .ctrl-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(160,120,208,0.55);
     }
-    .cake-wrapper {
-      position: relative;
-      width: 380px;
-      height: 380px;
-      margin: 2rem auto;
+
+    .ctrl-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
     }
-    .cake-img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
+
+    .page-indicator {
+      font-size: 1rem;
+      color: #c9b8e8;
+      min-width: 90px;
+      text-align: center;
+      font-family: system-ui, sans-serif;
     }
-    .flame {
+
+    .hint {
       position: absolute;
-      top: -50px;
+      bottom: 18px;
       left: 50%;
       transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 32px solid transparent;
-      border-right: 32px solid transparent;
-      border-bottom: 110px solid #ff7a7a;
-      filter: blur(7px);
-      animation: flicker 3s infinite alternate;
-      display: none;
-      z-index: 3;
-      opacity: 0.95;
-    }
-    .flame-inner {
-      position: absolute;
-      top: 25px;
-      left: -20px;
-      width: 40px;
-      height: 40px;
-      background: #fffb8f;
-      border-radius: 50%;
-      filter: blur(12px);
-    }
-    @keyframes flicker {
-      0%   { transform: translateX(-50%) scale(1) rotate(5deg); }
-      100% { transform: translateX(-50%) scale(1.1) rotate(-5deg); }
-    }
-    #tip {
-      margin-top: 2.5rem;
-      font-size: 1.6rem;
-      opacity: 0.93;
-      color: #e0d4ff;
+      z-index: 15;
+      font-size: 0.85rem;
+      color: rgba(240,248,255,0.55);
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.08em;
     }
 
-    #wish-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
-    #wish-textarea {
-      width: min(90vw, 640px);
-      min-height: 140px;
-      padding: 1.2rem;
-      font-size: 1.25rem;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(212,165,255,0.3);
-      border-radius: 20px;
-      color: white;
-      resize: vertical;
-      margin: 2rem 0;
-      backdrop-filter: blur(10px);
-    }
-    #wish-textarea::placeholder { color: rgba(240,248,255,0.55); }
-
-    #photo-gallery {
-      display: none;
-      width: 100%;
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem;
-      flex-direction: column;
-      align-items: center;
-    }
-    #photo-container {
+    .loading {
       position: relative;
-      width: 100%;
-      height: 70vh;
-      max-height: 620px;
-      overflow: hidden;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-      background: rgba(0,0,0,0.3);
-    }
-    #photo-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-    #photo-container img.active {
-      opacity: 1;
+      z-index: 20;
+      color: #c9b8e8;
+      font-size: 1.2rem;
+      font-family: system-ui, sans-serif;
     }
 
-    /* 照片控制按钮优化：手机上尽量一行显示，按钮缩小 */
-    .photo-controls {
-      margin: 2rem 0;
-      display: flex;
-      justify-content: center;
-      gap: 1rem;                 /* 间距缩小 */
-      flex-wrap: nowrap;         /* 强制尽量不换行 */
-      width: 100%;
-      max-width: 420px;          /* 控制总宽度 */
-    }
-
-    .photo-btn {
-      padding: 0.7rem 1.4rem;    /* 缩小内边距 */
-      font-size: clamp(0.95rem, 3.5vw, 1.1rem);  /* 字体更小 */
-      min-width: 90px;           /* 防止太窄 */
-      color: white;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border: none;
-      border-radius: 999px;
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(160,120,208,0.4);
-      transition: all 0.3s;
-      white-space: nowrap;
-    }
-
-    .photo-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 28px rgba(160,120,208,0.6);
-    }
-
-    @media (max-width: 480px) {
-      .photo-controls {
-        gap: 0.7rem;
-        padding: 0 0.5rem;
+    @media (max-width: 640px) {
+      .book-wrapper {
+        height: min(72vh, 520px);
       }
-      .photo-btn {
-        padding: 0.65rem 1.1rem;
-        font-size: clamp(0.9rem, 4vw, 1rem);
-        min-width: 80px;
+      .page .front,
+      .page .back {
+        padding: 1.2rem 1rem;
       }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+      .page-content {
+        font-size: 0.92rem;
+        line-height: 1.85;
+      }
+      .controls {
+        gap: 0.8rem;
+      }
+      .ctrl-btn {
+        padding: 0.6rem 1.3rem;
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
 <body>
-<canvas id="fireflies"></canvas>
+  <canvas id="fireflies"></canvas>
 
-<div class="main-content" id="mainContent">
-  <div id="stage"></div>
-  <div class="buttons" id="buttons"></div>
-
-  <div id="cake-screen">
-    <div class="cake-wrapper">
-      <img src="cake.jpg" alt="生日蛋糕" class="cake-img">
-      <div class="flame" id="flame">
-        <div class="flame-inner"></div>
-      </div>
+  <div class="book-wrapper">
+    <div class="book" id="book">
+      <div class="loading" id="loading">正在加载日记...</div>
     </div>
-    <div id="tip">点蜡烛吧～</div>
-    <button class="btn" id="light-candle" style="margin-top:2.5rem;">点亮蜡烛</button>
   </div>
 
-  <div id="wish-screen">
-    <h2 style="margin-bottom:1.6rem;">许个愿吧～</h2>
-    <textarea id="wish-textarea" placeholder="悄悄写下你的愿望……（萤火虫下班咯不保密咯）"></textarea>
-    <button class="btn" id="btn-blow">吹灭蜡烛</button>
+  <div class="controls" id="controls" style="display:none;">
+    <button class="ctrl-btn" id="prevBtn">上一页</button>
+    <div class="page-indicator" id="pageIndicator">1 / 1</div>
+    <button class="ctrl-btn" id="nextBtn">下一页</button>
   </div>
 
-  <div id="finish" style="display:none; text-align:center; padding:2rem; max-width:90%;"></div>
+  <div class="hint">点击页面右侧或按钮翻页 · 可左右滑动</div>
 
-  <div id="photo-gallery">
-    <div id="photo-container"></div>
-    <div class="photo-controls">
-      <button class="photo-btn" id="prev-photo">上一张</button>
-      <button class="photo-btn" id="toggle-play">暂停</button>
-      <button class="photo-btn" id="next-photo">下一张</button>
-    </div>
-    <button class="btn" id="back-to-finish" style="background:linear-gradient(135deg, #6b7280, #4b5563); margin-top:1.5rem;">
-      返回祝福页
-    </button>
-  </div>
-</div>
+  <script>
+    // ===================== 萤火虫 =====================
+    const canvas = document.getElementById('fireflies');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
 
-<audio id="bgm" loop preload="auto">
-  <source src="birthday-music.mp3" type="audio/mpeg">
-</audio>
-
-<audio id="bgm2" loop preload="auto">
-  <source src="music2.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-// ===================== 萤火虫 =====================
-const canvas = document.getElementById('fireflies');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-
-class Firefly {
-  constructor(isBackground = false) {
-    this.isBackground = isBackground;
-    this.reset();
-    this.transitionStart = 0;
-    this.transitionProgress = 0;
-  }
-
-  reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = canvas.height * (this.isBackground ? 0.15 : 0.6) + Math.random() * canvas.height * (this.isBackground ? 0.7 : 0.4);
-    this.size = Math.random() * 2.8 + 1.2;
-    this.speed = Math.random() * 0.5 + 0.15;
-    this.angle = Math.random() * Math.PI * 2;
-    this.hue = 50 + Math.random() * 30;
-    this.alpha = Math.random() * 0.4 + 0.15;
-    this.phase = Math.random() * Math.PI * 2;
-    this.target = null;
-    this.transitionStart = 0;
-    this.transitionProgress = 0;
-  }
-
-  startStarTransition() {
-    this.transitionStart = performance.now();
-    this.transitionProgress = 0;
-  }
-
-  update(targets) {
-    const now = performance.now();
-    if (this.transitionStart > 0) {
-      const elapsed = now - this.transitionStart;
-      this.transitionProgress = Math.min(elapsed / 5000, 1);
-    }
-    const p = this.transitionProgress;
-
-    if (p === 0 && !this.isBackground && targets.length > 0) {
-      if (!this.target) this.target = targets[Math.floor(Math.random() * targets.length)];
-      const dx = this.target.x - this.x;
-      const dy = this.target.y - this.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist > 1.8) {
-        this.x += dx * 0.0035 * this.speed;
-        this.y += dy * 0.0035 * this.speed;
-      } else {
-        this.x += (Math.random() - 0.5) * 0.7;
-        this.y += (Math.random() - 0.5) * 0.7;
+    class Firefly {
+      constructor(isBackground = false) {
+        this.isBackground = isBackground;
+        this.reset();
       }
-    } else {
-      this.x += Math.cos(this.angle) * this.speed * (0.8 - p * 0.5);
-      this.y += Math.sin(this.angle) * this.speed * (0.8 - p * 0.5);
-      this.angle += (Math.random() - 0.5) * 0.035;
-      if (this.x < 0) this.x += canvas.width;
-      if (this.x > canvas.width) this.x -= canvas.width;
-      if (this.y < 0) this.y += canvas.height;
-      if (this.y > canvas.height) this.y -= canvas.height;
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height * (this.isBackground ? 0.12 : 0.55) + Math.random() * canvas.height * (this.isBackground ? 0.75 : 0.4);
+        this.size = Math.random() * 2.6 + 1.1;
+        this.speed = Math.random() * 0.45 + 0.12;
+        this.angle = Math.random() * Math.PI * 2;
+        this.hue = 48 + Math.random() * 28;
+        this.alpha = Math.random() * 0.38 + 0.14;
+        this.phase = Math.random() * Math.PI * 2;
+      }
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.angle += (Math.random() - 0.5) * 0.03;
+        if (this.x < 0) this.x += canvas.width;
+        if (this.x > canvas.width) this.x -= canvas.width;
+        if (this.y < 0) this.y += canvas.height;
+        if (this.y > canvas.height) this.y -= canvas.height;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = `hsl(${this.hue}, 100%, ${72 + Math.sin(Date.now() * 0.001 + this.phase) * 12}%)`;
+        ctx.shadowBlur = this.isBackground ? 9 : 18;
+        ctx.shadowColor = '#c4b5fd';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
 
-    this.hue = 50 * (1 - p) + (210 + Math.random() * 30) * p;
-    this.alpha = 0.3 * (1 - p) + (0.4 + Math.sin(now * 0.0007 + this.phase) * 0.35) * p;
-    this.speed = (Math.random() * 0.45 + 0.12) * (1 - p * 0.65);
-  }
+    const fireflies = [];
+    for (let i = 0; i < 180; i++) fireflies.push(new Firefly(false));
+    for (let i = 0; i < 80; i++) fireflies.push(new Firefly(true));
 
-  draw() {
-    ctx.save();
-    ctx.globalAlpha = this.alpha;
-    const p = this.transitionProgress;
-    if (p > 0.1) {
-      ctx.fillStyle = `hsl(${this.hue}, 80%, ${82 + Math.sin(Date.now() * 0.0018 + this.phase) * 14}%)`;
-      ctx.shadowBlur = 15 + p * 15;
-      ctx.shadowColor = '#e0f8ff';
-    } else {
-      ctx.fillStyle = `hsl(${this.hue}, 100%, ${75 + Math.sin(Date.now() * 0.001 + this.phase) * 10}%)`;
-      ctx.shadowBlur = this.isBackground ? 10 : 20;
-      ctx.shadowColor = '#c4b5fd';
+    function animateFireflies() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fireflies.forEach(f => { f.update(); f.draw(); });
+      requestAnimationFrame(animateFireflies);
     }
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
+    animateFireflies();
 
-const fireflies = [];
-for (let i = 0; i < 220; i++) fireflies.push(new Firefly(false));
-for (let i = 0; i < 100; i++) fireflies.push(new Firefly(true));
+    // ===================== 从文本文件加载日记 =====================
+    /**
+     * 解析 diary.txt
+     * 格式规则：
+     *   【封面】 / 【封面背面】 / 【第1页】 / 【第2页】 ... / 【封底】 / 【封底背面】
+     * 每一段标题后的内容直到下一个【】之前，就是该页的内容。
+     */
+    function parseDiaryText(text) {
+      const sections = [];
+      // 匹配所有 【标题】 和其后的内容
+      const regex = /【([^】]+)】\s*([\s\S]*?)(?=【|$)/g;
+      let match;
 
-function getNingPoints() {
-  const temp = document.createElement('canvas');
-  temp.width = 1100;
-  temp.height = 1100;
-  const tctx = temp.getContext('2d');
-  tctx.font = 'bold 920px sans-serif';
-  tctx.textAlign = 'center';
-  tctx.textBaseline = 'middle';
-  tctx.fillStyle = '#fff';
-  tctx.fillText('宁', 550, 550);
-  const points = [];
-  const data = tctx.getImageData(0, 0, 1100, 1100).data;
-  for (let y = 0; y < 1100; y += 3) {
-    for (let x = 0; x < 1100; x += 3) {
-      if (data[(y * 1100 + x) * 4 + 3] > 60) {
-        points.push({
-          x: (x / 1100) * canvas.width * 0.72 + canvas.width * 0.14,
-          y: (y / 1100) * canvas.height * 0.78 + canvas.height * 0.08
+      while ((match = regex.exec(text)) !== null) {
+        const title = match[1].trim();
+        const content = match[2].trim();
+        sections.push({ title, content });
+      }
+
+      // 把连续的两页合成一叶（front + back）
+      const pagesData = [];
+      for (let i = 0; i < sections.length; i += 2) {
+        const frontSec = sections[i];
+        const backSec = sections[i + 1] || { title: '', content: '' };
+
+        const isCover = frontSec.title.includes('封面') || frontSec.title.includes('封底');
+
+        let frontHtml = '';
+        let backHtml = '';
+
+        if (isCover) {
+          // 封面样式
+          const lines = frontSec.content.split('\n').map(l => l.trim()).filter(Boolean);
+          frontHtml = `
+            <div class="cover-title">${lines[0] || frontSec.title}</div>
+            ${lines.slice(1).map(l => `<div class="cover-sub">${l}</div>`).join('')}
+          `;
+          const backLines = backSec.content.split('\n').map(l => l.trim()).filter(Boolean);
+          backHtml = backLines.map(l => `<div style="margin:0.6em 0;font-size:1.05rem;">${l}</div>`).join('');
+        } else {
+          // 普通页面：把换行变成段落
+          frontHtml = `
+            <div class="page-content">${formatContent(frontSec.content)}</div>
+            <div class="page-footer">${frontSec.title.replace(/第|页/g, '') || ''}</div>
+          `;
+          backHtml = `
+            <div class="page-content">${formatContent(backSec.content)}</div>
+            <div class="page-footer">${backSec.title.replace(/第|页/g, '') || ''}</div>
+          `;
+        }
+
+        pagesData.push({
+          isCover,
+          front: frontHtml,
+          back: backHtml
         });
       }
+
+      return pagesData;
     }
-  }
-  return points;
-}
 
-let ningPoints = [];
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (ningPoints.length === 0) ningPoints = getNingPoints();
-  fireflies.forEach(f => {
-    f.update(ningPoints);
-    f.draw();
-  });
-  requestAnimationFrame(animate);
-}
-animate();
-
-// ===================== 对话流程 =====================
-const mainContent = document.getElementById('mainContent');
-const stage = document.getElementById('stage');
-const btnContainer = document.getElementById('buttons');
-const bgm = document.getElementById('bgm');
-const bgm2 = document.getElementById('bgm2');
-let hasSentOpenNotice = false;
-
-function postToMailbox(payload) {
-  return fetch('https://eot2mpox4zshyec.m.pipedream.net', {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-    body: JSON.stringify({
-      ...payload,
-      date: new Date().toLocaleString('zh-CN'),
-      ua: navigator.userAgent,
-      page: location.href
-    })
-  });
-}
-
-function sendOpenNotice() {
-  if (hasSentOpenNotice) return Promise.resolve();
-  hasSentOpenNotice = true;
-  return postToMailbox({
-    event: 'first_button_click',
-    message: '用户点击了第一个按钮：见字如晤'
-  });
-}
-
-const dialog = [
-  { text: "展信佳\n这是一封\n带回函的信", buttons: ["见字如晤"], auto: 0 },
-  { text: "我觉得之前的歌不错\n可以再听一次", buttons: [], auto: 3000 },
-  { text: "不过下次我们还是换首歌吧\n想听其他歌也可以给我留言", buttons: ["来首音乐"], auto: 0 },
-
-  { text: "祝福语之前就说过了\n若还是一样的祝福\n我感觉有点尬呢", buttons:  [], auto: 5000 },
-  { text: "其实在我原本的预想中", buttons: [], auto: 3000 },
-  { text: "你在新历生日的时候收到礼物", buttons: [], auto: 4000 },
-  { text: "在农历生日的时候刚好破解打开", buttons: [], auto: 4000 },
-  { text: "也正好呼应了0527的密码\n完美设计！", buttons:  [], auto: 4000 },
-  { text: "现在看来", buttons: [], auto: 3000 },
-  { text: "高估了你的解密\n也低估了你的执着", buttons: [], auto: 5000 },
-  { text: "所以启动备用方案\n出台了2.0版本", buttons: [], auto: 4000 },
-  { text: "但是现在出了一些问题\n文案没有完整的预案\n预案只到这里了...", buttons: [], auto: 6000 },
-
-  { text: "但是每次都是生日快乐等等\n有点落入俗套", buttons:  [], auto: 5000 },
-  { text: "不知道寿星想听什么\n我就想到什么说什么咯", buttons:  [], auto: 5000 },
-
-  { text: "感觉你还是蛮令人惊喜的", buttons: [], auto: 4000 },
-  { text: "而且还感觉天天活力四射", buttons: [], auto: 4000 },
-  { text: "尽管之前说过你也有低潮的时候", buttons: [], auto: 4000 },
-  { text: "但能独自奔赴一场喜欢的演唱会\n真的是一种逍遥游的无所依", buttons: [], auto: 8000 },
-  { text: "我真的真的很羡慕你<无所依>\n的勇气", buttons:  [], auto: 4000 },
-  { text: "至少在我看来\n你一定是一个内心充盈的人", buttons:  [], auto: 8000 },
-  { text: "魏聪师兄说\n人人各有所长\n而君子见贤思齐", buttons: [], auto: 4000 },
-  { text: "对了，你排名出来的时候\n怎么不和我说！", buttons:  [], auto: 4000 },
-  { text: "姑且不说我的答疑\n我还是你半个保险老板！！", buttons: [], auto: 4000 },
-  { text: "我发现没买保险的科目你都不说\n合着只有保险生效才想起老板是吧", buttons:  [], auto: 6000 },
-  { text: "生气！\n我要一点时间平复心情！", buttons: [], auto: 4500 },
-  { text: "8", buttons: [], auto: 800 },
-  { text: "7", buttons: [], auto: 800 },
-  { text: "6", buttons: [], auto: 800 },
-  { text: "5", buttons: [], auto: 800 },
-  { text: "4", buttons: [], auto: 800 },
-  { text: "3", buttons: [], auto: 800 },
-  { text: "2", buttons: [], auto: 800 },
-  { text: "1", buttons: [], auto: 800 },
-  { text: "一点时间后...", buttons: [], auto: 2000 },
-
-  { text: "啊哈哈\n我又想起那天给你送礼物的早上", buttons:  [], auto: 5000 },
-  { text: "大老远看到你戴个帽子\n本来拿着礼物等你", buttons: [], auto: 5000 },
-  { text: "然后发现你旁边还跟了一个男生", buttons:  [], auto: 4000 },
-  { text: "我还以为有情况", buttons:  [], auto: 3000 },
-  { text: "礼物挂你车上就走了", buttons: [], auto: 3000 },
-  { text: "挂完之后发现你们好像不认识", buttons: [], auto: 4000 },
-  { text: "但是你又走近了\n搞得我进退维谷", buttons: [], auto: 4000 },
-  { text: "此外\n我举报", buttons: [], auto: 2000 },
-  { text: "那辆讨厌的车\n就在你来之前的五分钟\n一个男的硬塞进去的", buttons: [], auto: 6000 },
-  { text: "不过我刚好以这个为由出面啊哈哈", buttons: [], auto: 5000 },
-
-  { text: "之前你的愿望有萤火虫保密\n也没能看到你解密的过程\n还是有些遗憾的", buttons:  [], auto: 6000 },
-
-  { text: "最后的最后\n还是要有祝愿的\n还是很喜欢之前那句", buttons: [], auto: 6000 },
-  { text: "我们\n用光年丈量星海\n用传说翻译未知", buttons: [], auto: 3500 },
-  { text: "憧憬着广阔空间\n也与自己的渺小周旋", buttons: [], auto: 3500 },
-  { text: "你又怎知\n萤火不是更远的星河", buttons: [], auto: 3000 },
-  { text: "愿你如星河光而不耀\n愿你如三月春暖花开", buttons: ["生日快乐"], auto: 0 },
-
-  { text: "再请扮演蛋糕的老伙计\n出演一次吧", buttons: [], auto: 5000 }, 
-
-  { text: "对了\n如果你想分享一下你的愿望", buttons: [], auto: 4000 },
-  { text: "And最近有什么好玩的事\n或者有什么烦恼\n都可以说说看咯\n以后也是", buttons:  ["再次有请生日蛋糕"], auto: 0 },
-
-];
-
-let current = 0;
-
-setTimeout(() => {
-  mainContent.classList.add('visible');
-  showStep();
-}, 6500);
-
-function showStep() {
-  if (current >= dialog.length) {
-    enterCakeStage();
-    return;
-  }
-
-  const item = dialog[current];
-  stage.classList.remove('visible');
-
-  setTimeout(() => {
-    stage.textContent = item.text;
-    stage.classList.add('visible');
-
-    btnContainer.innerHTML = '';
-
-    if (item.buttons && item.buttons.length) {
-      item.buttons.forEach(txt => {
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.textContent = txt;
-        btn.onclick = () => {
-          if (txt === "见字如晤") {
-            sendOpenNotice().catch(err => {
-              console.log('打开通知发送失败', err);
-            });
+    function formatContent(text) {
+      // 按空行分段，每段变成 <p>
+      return text
+        .split(/\n\s*\n/)
+        .map(para => para.trim())
+        .filter(Boolean)
+        .map(para => {
+          // 如果是诗歌（每行较短且居中风格），不缩进
+          const lines = para.split('\n').map(l => l.trim()).filter(Boolean);
+          if (lines.length > 1 && lines.every(l => l.length < 20)) {
+            return lines.map(l => `<p style="text-indent:0;text-align:center;margin:0.4em 0;">${l}</p>`).join('');
           }
-          if (txt === "来首音乐") {
-            bgm.play().catch(() => console.log("自动播放被阻止"));
-          }
-          current++;
-          showStep();
-        };
-        btnContainer.appendChild(btn);
+          return `<p>${para.replace(/\n/g, '<br>')}</p>`;
+        })
+        .join('');
+    }
+
+    // ===================== 翻书逻辑 =====================
+    let pagesData = [];
+    let currentPage = 0;
+    let totalLeaves = 0;
+    const book = document.getElementById('book');
+
+    function createPages() {
+      book.innerHTML = '';
+      pagesData.forEach((data, index) => {
+        const page = document.createElement('div');
+        page.className = 'page' + (data.isCover ? ' cover' : '');
+        page.dataset.index = index;
+        page.style.zIndex = totalLeaves - index;
+
+        page.innerHTML = `
+          <div class="front">${data.front}</div>
+          <div class="back">${data.back}</div>
+        `;
+
+        page.addEventListener('click', (e) => {
+          const rect = page.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          if (x > rect.width * 0.45) nextPage();
+          else prevPage();
+        });
+
+        book.appendChild(page);
       });
+      updateUI();
+      document.getElementById('controls').style.display = 'flex';
     }
 
-    if (item.auto > 0) {
-      setTimeout(() => {
-        current++;
-        showStep();
-      }, item.auto);
-    }
-  }, 1800);
-}
-
-function enterCakeStage() {
-  stage.style.display = 'none';
-  btnContainer.style.display = 'none';
-  document.getElementById('cake-screen').style.display = 'flex';
-}
-
-// 照片回顾功能
-const photos = [
-  "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg",
-  "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
-  "11.jpg", "12.jpg"
-];
-
-let currentPhotoIndex = 0;
-let slideshowInterval = null;
-const photoContainer = document.getElementById('photo-container');
-
-function showPhoto(index) {
-  photoContainer.innerHTML = `
-    <img src="${photos[index]}" alt="回忆 ${index+1}" class="active">
-  `;
-}
-
-function startSlideshow() {
-  if (slideshowInterval) clearInterval(slideshowInterval);
-  slideshowInterval = setInterval(() => {
-    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-    showPhoto(currentPhotoIndex);
-  }, 24000);
-}
-
-function stopSlideshow() {
-  if (slideshowInterval) {
-    clearInterval(slideshowInterval);
-    slideshowInterval = null;
-  }
-}
-
-// 点亮蜡烛
-document.getElementById('light-candle').onclick = () => {
-  document.getElementById('flame').style.display = 'block';
-  document.getElementById('tip').textContent = '许愿时间到～';
-
-  setTimeout(() => {
-    document.getElementById('cake-screen').style.display = 'none';
-    document.getElementById('wish-screen').style.display = 'flex';
-  }, 1000);
-};
-
-function sendWishToMailbox(wishText) {
-  return postToMailbox({
-    event: 'wish_submit',
-    wish: wishText,
-    message: wishText
-  });
-}
-
-// 吹蜡烛 → 最终祝福
-document.getElementById('btn-blow').onclick = () => {
-  const wish = document.getElementById('wish-textarea').value.trim();
-  if (wish) {
-    sendWishToMailbox(wish).catch(err => {
-      console.log('留言发送失败', err);
-    });
-  }
-
-  document.getElementById('wish-screen').style.opacity = '0';
-  setTimeout(() => {
-    document.getElementById('wish-screen').style.display = 'none';
-  }, 800);
-
-  fireflies.forEach(f => f.startStarTransition());
-
-  setTimeout(() => {
-    const finish = document.getElementById('finish');
-    let html = `
-      <h1 style="font-size: clamp(3rem, 9vw, 5.5rem); opacity:0; animation: fadeIn 2s forwards 0.5s;">
-        🎂 生日快乐🎂
-      </h1>
-      <h1 style="font-size: clamp(3rem, 9vw, 5.5rem); opacity:0; animation: fadeIn 2s forwards 0.5s;">
-        ✨宁小倩✨
-      </h1>
-      <div style="margin:1.8em 0 2.5em; font-size:1.7rem; opacity:0; animation: fadeIn 2s forwards 1.2s;">
-        I wish I was a cat  just miaomiaomiao
-      </div>
-    `;
-
-    const wish = document.getElementById('wish-textarea').value.trim();
-    if (wish) {
-      html += `
-        <div style="opacity:0; animation: fadeIn 2s forwards 2s; max-width:700px; margin:0 auto;">
-          <h3>你刚刚许下的愿望是：</h3>
-          <p style="white-space: pre-wrap; font-size:1.35rem; line-height:1.7;">${wish}</p>
-        </div>
-        <div style="margin-top:2rem; font-size:1.2rem; opacity:0; animation: fadeIn 2s forwards 2.8s;">
-          希望你寻找的萤火微光，终成为你面前的璀璨星河
-        </div>
-      `;
-    } else {
-      html += `
-        <div style="margin-top:2.5rem; font-size:1.4rem; opacity:0; animation: fadeIn 2s forwards 2s;">
-         希望你寻找的萤火微光，终成为你面前的璀璨星河
-        </div>
-      `;
+    function flipTo(index) {
+      if (index < 0 || index > totalLeaves) return;
+      currentPage = index;
+      const pages = book.querySelectorAll('.page');
+      pages.forEach((page, i) => {
+        if (i < currentPage) {
+          page.style.transform = 'rotateY(-180deg)';
+          page.style.zIndex = i + 1;
+        } else {
+          page.style.transform = 'rotateY(0deg)';
+          page.style.zIndex = totalLeaves - i;
+        }
+      });
+      updateUI();
     }
 
-    html += `
-      <button class="btn" id="btn-review" style="margin-top:3.5rem; font-size:1.4rem; padding:1.1rem 3.2rem;">
-        忆往昔
-      </button>
-    `;
+    function nextPage() {
+      if (currentPage < totalLeaves) flipTo(currentPage + 1);
+    }
 
-    finish.innerHTML = html;
-    finish.style.display = 'block';
+    function prevPage() {
+      if (currentPage > 0) flipTo(currentPage - 1);
+    }
 
-    document.getElementById('btn-review').onclick = () => {
-      if (!bgm.paused) bgm.pause();
-      bgm2.play().catch(e => console.log("第二首播放被阻止", e));
+    function updateUI() {
+      const indicator = document.getElementById('pageIndicator');
+      indicator.textContent = `${Math.min(currentPage + 1, totalLeaves)} / ${totalLeaves}`;
+      document.getElementById('prevBtn').disabled = currentPage <= 0;
+      document.getElementById('nextBtn').disabled = currentPage >= totalLeaves;
+    }
 
-      finish.style.display = 'none';
-      document.getElementById('photo-gallery').style.display = 'flex';
-      currentPhotoIndex = 0;
-      showPhoto(0);
-      startSlideshow();
-    };
+    document.getElementById('prevBtn').addEventListener('click', prevPage);
+    document.getElementById('nextBtn').addEventListener('click', nextPage);
 
-    document.getElementById('prev-photo').onclick = () => {
-      currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
-      showPhoto(currentPhotoIndex);
-    };
-
-    document.getElementById('next-photo').onclick = () => {
-      currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-      showPhoto(currentPhotoIndex);
-    };
-
-    document.getElementById('toggle-play').onclick = function() {
-      if (slideshowInterval) {
-        stopSlideshow();
-        this.textContent = '继续播放';
-      } else {
-        startSlideshow();
-        this.textContent = '暂停';
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextPage();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevPage();
       }
-    };
+    });
 
-    document.getElementById('back-to-finish').onclick = () => {
-      document.getElementById('photo-gallery').style.display = 'none';
-      finish.style.display = 'block';
-      stopSlideshow();
-      document.getElementById('toggle-play').textContent = '暂停';
+    let touchStartX = 0;
+    book.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
 
-      if (!bgm2.paused) bgm2.pause();
-    };
+    book.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) nextPage();
+        else prevPage();
+      }
+    }, { passive: true });
 
-  }, 6000);
-};
-</script>
+    // ===================== 加载文本文件 =====================
+    async function loadDiary() {
+      try {
+        const response = await fetch('diary.txt');
+        if (!response.ok) throw new Error('无法读取 diary.txt');
+        const text = await response.text();
+        pagesData = parseDiaryText(text);
+        totalLeaves = pagesData.length;
+
+        if (totalLeaves === 0) {
+          document.getElementById('loading').textContent = '日记内容为空，请检查 diary.txt';
+          return;
+        }
+
+        createPages();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loading').innerHTML = `
+          <div style="text-align:center;padding:2rem;color:#f5e6c8;">
+            <p style="margin-bottom:1rem;">无法加载 diary.txt</p>
+            <p style="font-size:0.9rem;opacity:0.8;line-height:1.6;">
+              请确保 diary.txt 和 index.html 在同一文件夹，<br>
+              并使用本地服务器打开（推荐 Live Server 或 python -m http.server）
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    loadDiary();
+  </script>
 </body>
 </html>
