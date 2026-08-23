@@ -9,8 +9,6 @@
       --bg: #0a0f1a;
       --grass: #0b1e0b;
       --text: #f0f8ff;
-      --paper: #f7f0e0;
-      --paper-dark: #ebe2d0;
       --ink: #2c2416;
       --accent: #d4a5ff;
       --accent-dark: #a078d0;
@@ -39,7 +37,6 @@
       pointer-events: none;
     }
 
-    /* 欢迎页 */
     #welcome {
       position: relative;
       z-index: 20;
@@ -88,16 +85,15 @@
       transform: none;
     }
 
-    /* ========== 书本主体 ========== */
     .book-wrapper {
       position: relative;
       z-index: 10;
-      width: min(96vw, 980px);
+      width: min(96vw, 1000px);
       height: min(84vh, 720px);
       display: none;
       justify-content: center;
       align-items: center;
-      perspective: 2200px;
+      perspective: 2400px;
     }
 
     .book {
@@ -106,133 +102,89 @@
       height: 100%;
       display: flex;
       transform-style: preserve-3d;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-      border-radius: 4px 12px 12px 4px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+      border-radius: 6px 12px 12px 6px;
     }
 
-    /* 左页（固定底板，显示上一面内容） */
-    .left-page {
+    .page-half {
       width: 50%;
       height: 100%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: var(--ink);
+    }
+
+    .page-half.left {
       background:
-        linear-gradient(90deg, transparent 0%, rgba(160,130,90,0.12) 100%),
+        linear-gradient(90deg, transparent 0%, rgba(160,130,90,0.1) 100%),
         linear-gradient(180deg, #f3ece0 0%, #ebe3d2 50%, #e6dcc8 100%);
       border-radius: 8px 0 0 8px;
-      box-shadow: inset -8px 0 16px rgba(0,0,0,0.06);
-      padding: 2rem 1.8rem 1.5rem 2.2rem;
-      color: var(--ink);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-      z-index: 1;
+      box-shadow: inset -6px 0 14px rgba(0,0,0,0.05);
+      padding: 2rem 1.7rem 1.4rem 2.1rem;
     }
 
-    .left-page::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      opacity: 0.65;
-    }
-
-    /* 右页区域（可翻页的层叠） */
-    .right-stack {
-      width: 50%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-    }
-
-    /* 每一张可翻的页 */
-    .flip-page {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      transform-origin: left center;
-      transform-style: preserve-3d;
-      transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1);
-      cursor: pointer;
-    }
-
-    .flip-page .face {
-      position: absolute;
-      inset: 0;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      color: var(--ink);
-    }
-
-    .flip-page .face-front {
+    .page-half.right {
       background:
         linear-gradient(270deg, transparent 0%, rgba(160,130,90,0.1) 100%),
         linear-gradient(180deg, #faf6eb 0%, #f5efe0 50%, #f0e8d4 100%);
       border-radius: 0 8px 8px 0;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.18);
-      padding: 2rem 2.2rem 1.5rem 1.8rem;
+      box-shadow: 4px 0 18px rgba(0,0,0,0.15);
+      padding: 2rem 2.1rem 1.4rem 1.7rem;
+      cursor: pointer;
     }
 
-    .flip-page .face-back {
-      background:
-        linear-gradient(90deg, transparent 0%, rgba(160,130,90,0.12) 100%),
-        linear-gradient(180deg, #f3ece0 0%, #ebe3d2 50%, #e6dcc8 100%);
-      border-radius: 8px 0 0 8px;
-      transform: rotateY(180deg);
-      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
-      padding: 2rem 1.8rem 1.5rem 2.2rem;
-    }
-
-    .flip-page .face-front::before,
-    .flip-page .face-back::before,
-    .left-page::after {
+    .page-half::before {
       content: "";
       position: absolute;
       inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none;
-      opacity: 0.65;
+      opacity: 0.6;
     }
 
-    /* 封面特殊样式 */
-    .flip-page.cover .face-front,
-    .flip-page.cover .face-back,
-    .left-page.is-cover {
-      background: linear-gradient(145deg, #2e2218 0%, #4a3728 35%, #3a2a1c 70%, #2a1e14 100%) !important;
-      color: #f5e6c8 !important;
+    .cover-page {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #2e2218 0%, #4a3728 35%, #3a2a1c 70%, #2a1e14 100%);
+      color: #f5e6c8;
+      display: none;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      border: 2px solid #9a7b3c;
+      border: 3px solid #9a7b3c;
+      border-radius: 8px 12px 12px 8px;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.3), 0 12px 40px rgba(0,0,0,0.4);
+      cursor: pointer;
+      position: relative;
+      z-index: 5;
     }
 
     .cover-title {
-      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
-      letter-spacing: 0.3em;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: 0.35em;
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      height: 55%;
+      height: 50%;
       display: flex;
       align-items: center;
       text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      margin-bottom: 1.2rem;
     }
 
     .cover-sub {
-      font-size: 1rem;
+      font-size: 1.05rem;
       opacity: 0.88;
-      letter-spacing: 0.12em;
-      margin-top: 1rem;
+      letter-spacing: 0.15em;
+      margin-top: 0.6rem;
     }
 
     .page-content {
       flex: 1;
       overflow-y: auto;
-      font-size: clamp(1rem, 2.1vw, 1.2rem);
+      font-size: clamp(1rem, 2.1vw, 1.22rem);
       line-height: 2;
       text-align: justify;
       letter-spacing: 0.04em;
@@ -241,64 +193,63 @@
     }
 
     .page-content p {
-      margin-bottom: 0.9em;
+      margin-bottom: 0.85em;
       text-indent: 2em;
     }
 
     .page-footer {
-      margin-top: 0.8rem;
-      font-size: 0.85rem;
-      opacity: 0.55;
+      margin-top: 0.7rem;
+      font-size: 0.82rem;
+      opacity: 0.5;
       text-align: center;
       letter-spacing: 0.1em;
       position: relative;
       z-index: 1;
     }
 
-    /* 书脊 */
     .book-spine {
       position: absolute;
       left: 50%;
       top: 0;
-      width: 16px;
+      width: 14px;
       height: 100%;
       transform: translateX(-50%);
       background: linear-gradient(90deg,
-        rgba(0,0,0,0.28) 0%,
-        rgba(0,0,0,0.08) 40%,
-        rgba(0,0,0,0.05) 50%,
-        rgba(0,0,0,0.1) 60%,
-        rgba(0,0,0,0.25) 100%);
-      z-index: 50;
+        rgba(0,0,0,0.25) 0%,
+        rgba(0,0,0,0.06) 40%,
+        rgba(0,0,0,0.04) 50%,
+        rgba(0,0,0,0.08) 60%,
+        rgba(0,0,0,0.22) 100%);
+      z-index: 20;
       pointer-events: none;
-      border-radius: 1px;
+      display: none;
     }
 
     .controls {
       position: relative;
       z-index: 20;
-      margin-top: 1.4rem;
+      margin-top: 1.3rem;
       display: none;
-      gap: 1.5rem;
+      gap: 1.4rem;
       align-items: center;
     }
 
     .ctrl-btn {
-      padding: 0.65rem 1.7rem;
+      padding: 0.6rem 1.6rem;
       font-size: 1rem;
       color: white;
       background: linear-gradient(135deg, #a078d0, #7a5aa8);
       border: none;
       border-radius: 999px;
       cursor: pointer;
-      box-shadow: 0 6px 18px rgba(160,120,208,0.35);
+      box-shadow: 0 6px 16px rgba(160,120,208,0.35);
       transition: all 0.3s;
       font-family: system-ui, sans-serif;
     }
 
     .ctrl-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 26px rgba(160,120,208,0.55);
+      transform: translateY(-2px);
+      box-shadow: 0 9px 22px rgba(160,120,208,0.5);
     }
 
     .ctrl-btn:disabled {
@@ -308,47 +259,43 @@
     }
 
     .page-indicator {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #c9b8e8;
-      min-width: 80px;
+      min-width: 90px;
       text-align: center;
       font-family: system-ui, sans-serif;
     }
 
     .hint {
       position: absolute;
-      bottom: 16px;
+      bottom: 14px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 15;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: rgba(240,248,255,0.5);
       font-family: system-ui, sans-serif;
       display: none;
     }
 
-    .loading {
-      color: #c9b8e8;
-      font-size: 1.15rem;
+    .music-tip {
+      font-size: 0.85rem;
+      color: rgba(240,248,255,0.45);
+      margin-top: 0.5rem;
       font-family: system-ui, sans-serif;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
     }
 
     @media (max-width: 700px) {
       .book-wrapper {
         width: 96vw;
-        height: min(78vh, 580px);
+        height: min(76vh, 560px);
       }
-      .left-page,
-      .flip-page .face-front,
-      .flip-page .face-back {
-        padding: 1.3rem 1.1rem;
+      .page-half.left,
+      .page-half.right {
+        padding: 1.2rem 1rem;
       }
       .page-content {
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         line-height: 1.9;
       }
     }
@@ -357,19 +304,27 @@
 <body>
   <canvas id="fireflies"></canvas>
 
+  <audio id="bgm" loop preload="auto">
+    <source src="bgm.mp3" type="audio/mpeg">
+  </audio>
+
   <div id="welcome">
     <h1>日记</h1>
     <p>轻轻打开，翻阅一页心事</p>
     <button class="open-btn" id="openDiaryBtn">打开日记</button>
+    <div class="music-tip">打开后将播放背景音乐（需有 bgm.mp3）</div>
   </div>
 
   <div class="book-wrapper" id="bookWrapper">
-    <div class="book" id="book">
-      <div class="left-page" id="leftPage">
-        <div class="page-content" style="opacity:0.4;display:flex;align-items:center;justify-content:center;">封面内侧</div>
-      </div>
-      <div class="right-stack" id="rightStack"></div>
-      <div class="book-spine"></div>
+    <div class="cover-page" id="coverPage">
+      <div class="cover-title" id="coverTitle">日记</div>
+      <div class="cover-sub" id="coverSub"></div>
+    </div>
+
+    <div class="book" id="bookInner" style="display:none;">
+      <div class="page-half left" id="leftPage"></div>
+      <div class="page-half right" id="rightPage"></div>
+      <div class="book-spine" id="bookSpine"></div>
     </div>
   </div>
 
@@ -382,7 +337,6 @@
   <div class="hint" id="hint">点击右侧页面或按钮翻页 · 可左右滑动</div>
 
   <script>
-    // ===================== 萤火虫 =====================
     const canvas = document.getElementById('fireflies');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -433,14 +387,12 @@
     for (let i = 0; i < 160; i++) fireflies.push(new Firefly(false));
     for (let i = 0; i < 70; i++) fireflies.push(new Firefly(true));
 
-    function animateFireflies() {
+    (function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       fireflies.forEach(f => { f.update(); f.draw(); });
-      requestAnimationFrame(animateFireflies);
-    }
-    animateFireflies();
+      requestAnimationFrame(animate);
+    })();
 
-    // ===================== 邮箱通知 =====================
     let hasSentOpenNotice = false;
 
     function postToMailbox(payload) {
@@ -465,7 +417,6 @@
       });
     }
 
-    // ===================== 解析日记 =====================
     function parseDiaryText(text) {
       const sections = [];
       const regex = /【([^】]+)】\s*([\s\S]*?)(?=【|$)/g;
@@ -474,24 +425,24 @@
         sections.push({ title: match[1].trim(), content: match[2].trim() });
       }
 
-      // 每一段作为一“面”（单页内容）
-      return sections.map(sec => {
-        const isCover = sec.title.includes('封面') || sec.title.includes('封底');
-        let html = '';
-        if (isCover) {
-          const lines = sec.content.split('\n').map(l => l.trim()).filter(Boolean);
-          html = `
-            <div class="cover-title">${lines[0] || sec.title}</div>
-            ${lines.slice(1).map(l => `<div class="cover-sub">${l}</div>`).join('')}
-          `;
+      let cover = null;
+      const pages = [];
+
+      sections.forEach(sec => {
+        if (sec.title.includes('封面') && !sec.title.includes('封底')) {
+          if (!cover) {
+            const lines = sec.content.split('\n').map(l => l.trim()).filter(Boolean);
+            cover = {
+              title: lines[0] || '日记',
+              subs: lines.slice(1)
+            };
+          }
         } else {
-          html = `
-            <div class="page-content">${formatContent(sec.content)}</div>
-            <div class="page-footer">${sec.title}</div>
-          `;
+          pages.push(sec);
         }
-        return { isCover, html, title: sec.title };
       });
+
+      return { cover, pages };
     }
 
     function formatContent(text) {
@@ -502,126 +453,94 @@
         .map(para => {
           const lines = para.split('\n').map(l => l.trim()).filter(Boolean);
           if (lines.length > 1 && lines.every(l => l.length < 20)) {
-            return lines.map(l => `<p style="text-indent:0;text-align:center;margin:0.35em 0;">${l}</p>`).join('');
+            return lines.map(l => `<p style="text-indent:0;text-align:center;margin:0.3em 0;">${l}</p>`).join('');
           }
           return `<p>${para.replace(/\n/g, '<br>')}</p>`;
         })
         .join('');
     }
 
-    // ===================== 翻书逻辑（左右对开） =====================
-    // sides[] = 每一“面”的内容
-    // 显示规则：左页 = sides[current]，右页 = sides[current+1]
-    // 翻下一页：右页翻过去，左页变成原来的右页，新右页出现
+    function renderPageHtml(sec) {
+      if (!sec) return '<div class="page-content" style="opacity:0.35;display:flex;align-items:center;justify-content:center;">（空白页）</div>';
+      return `
+        <div class="page-content">${formatContent(sec.content)}</div>
+        <div class="page-footer">${sec.title}</div>
+      `;
+    }
 
-    let sides = [];
-    let current = 0; // 当前左页对应的 sides 索引
-    let totalSides = 0;
-    let flipping = false;
+    let coverData = null;
+    let pages = [];
+    let spreadIndex = 0;
+    let totalSpreads = 0;
+    let showingCover = true;
 
+    const coverPage = document.getElementById('coverPage');
+    const bookInner = document.getElementById('bookInner');
     const leftPage = document.getElementById('leftPage');
-    const rightStack = document.getElementById('rightStack');
+    const rightPage = document.getElementById('rightPage');
+    const bookSpine = document.getElementById('bookSpine');
 
-    function renderLeft(index) {
-      if (index < 0 || index >= totalSides) {
-        leftPage.innerHTML = '';
-        leftPage.classList.remove('is-cover');
-        return;
+    function showCover() {
+      showingCover = true;
+      coverPage.style.display = 'flex';
+      bookInner.style.display = 'none';
+      bookSpine.style.display = 'none';
+
+      if (coverData) {
+        document.getElementById('coverTitle').textContent = coverData.title;
+        document.getElementById('coverSub').innerHTML = coverData.subs
+          .map(s => `<div class="cover-sub">${s}</div>`).join('');
       }
-      const side = sides[index];
-      leftPage.innerHTML = side.html;
-      if (side.isCover) leftPage.classList.add('is-cover');
-      else leftPage.classList.remove('is-cover');
+
+      document.getElementById('pageIndicator').textContent = '封面';
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = pages.length === 0;
     }
 
-    function buildRightPages() {
-      rightStack.innerHTML = '';
-      // 从后往前创建翻页层，最上面是当前右页
-      for (let i = totalSides - 1; i >= 0; i--) {
-        if (i <= current) continue; // 已经翻过的不显示在右边
-        const side = sides[i];
-        const page = document.createElement('div');
-        page.className = 'flip-page' + (side.isCover ? ' cover' : '');
-        page.dataset.index = i;
-        page.style.zIndex = totalSides - i;
+    function showSpread(index) {
+      showingCover = false;
+      coverPage.style.display = 'none';
+      bookInner.style.display = 'flex';
+      bookSpine.style.display = 'block';
 
-        // front = 这一面的内容（朝右时看到）
-        // back = 翻过去后，成为新的左页内容（其实我们用 leftPage 更新，back 可以放下一页或空白）
-        const nextSide = sides[i + 1];
-        const backHtml = nextSide ? nextSide.html : '<div style="opacity:0.3;text-align:center;padding-top:40%;">—</div>';
-        const backCover = nextSide && nextSide.isCover ? ' cover' : '';
+      spreadIndex = index;
+      const leftIdx = index * 2;
+      const rightIdx = index * 2 + 1;
 
-        page.innerHTML = `
-          <div class="face face-front">${side.html}</div>
-          <div class="face face-back">${backHtml}</div>
-        `;
-        if (side.isCover) page.querySelector('.face-front').style.cssText += 'justify-content:center;align-items:center;text-align:center;';
-        if (nextSide && nextSide.isCover) {
-          page.querySelector('.face-back').style.cssText += 'justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#2e2218,#4a3728,#2a1e14)!important;color:#f5e6c8!important;border:2px solid #9a7b3c;';
-        }
+      leftPage.innerHTML = renderPageHtml(pages[leftIdx] || null);
+      rightPage.innerHTML = renderPageHtml(pages[rightIdx] || null);
 
-        page.addEventListener('click', (e) => {
-          const rect = page.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          if (x > rect.width * 0.35) nextPage();
-          else prevPage();
-        });
-
-        rightStack.appendChild(page);
-      }
-    }
-
-    function updateView() {
-      renderLeft(current);
-      buildRightPages();
-      // 指示器：按“面”显示
-      const shown = Math.min(current + 1, totalSides);
-      document.getElementById('pageIndicator').textContent = `${shown} / ${totalSides}`;
-      document.getElementById('prevBtn').disabled = current <= 0;
-      document.getElementById('nextBtn').disabled = current >= totalSides - 1;
+      const start = leftIdx + 1;
+      const end = Math.min(rightIdx + 1, pages.length);
+      document.getElementById('pageIndicator').textContent = `${start}-${end} / ${pages.length}`;
+      document.getElementById('prevBtn').disabled = false;
+      document.getElementById('nextBtn').disabled = rightIdx >= pages.length - 1;
     }
 
     function nextPage() {
-      if (flipping || current >= totalSides - 1) return;
-      flipping = true;
-
-      // 找到最上面的那一页（当前右页）
-      const topPage = rightStack.querySelector('.flip-page');
-      if (topPage) {
-        topPage.style.transform = 'rotateY(-180deg)';
-        topPage.style.zIndex = 100 + current;
+      if (showingCover) {
+        if (pages.length > 0) showSpread(0);
+        return;
       }
-
-      setTimeout(() => {
-        current++;
-        updateView();
-        flipping = false;
-      }, 900);
+      if (spreadIndex < totalSpreads - 1) {
+        showSpread(spreadIndex + 1);
+      }
     }
 
     function prevPage() {
-      if (flipping || current <= 0) return;
-      flipping = true;
-      current--;
-      updateView();
-      // 让刚退回来的那一页有翻回动画
-      const pages = rightStack.querySelectorAll('.flip-page');
-      const target = Array.from(pages).find(p => +p.dataset.index === current + 1);
-      if (target) {
-        target.style.transition = 'none';
-        target.style.transform = 'rotateY(-180deg)';
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            target.style.transition = 'transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1)';
-            target.style.transform = 'rotateY(0deg)';
-          });
-        });
+      if (showingCover) return;
+      if (spreadIndex <= 0) {
+        showCover();
+      } else {
+        showSpread(spreadIndex - 1);
       }
-      setTimeout(() => { flipping = false; }, 900);
     }
 
     document.getElementById('prevBtn').addEventListener('click', prevPage);
     document.getElementById('nextBtn').addEventListener('click', nextPage);
+    coverPage.addEventListener('click', nextPage);
+    rightPage.addEventListener('click', nextPage);
+    leftPage.addEventListener('click', prevPage);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextPage(); }
@@ -629,10 +548,10 @@
     });
 
     let touchStartX = 0;
-    document.getElementById('book').addEventListener('touchstart', (e) => {
+    document.getElementById('bookWrapper').addEventListener('touchstart', (e) => {
       touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
-    document.getElementById('book').addEventListener('touchend', (e) => {
+    document.getElementById('bookWrapper').addEventListener('touchend', (e) => {
       const diff = touchStartX - e.changedTouches[0].screenX;
       if (Math.abs(diff) > 50) {
         if (diff > 0) nextPage();
@@ -640,28 +559,27 @@
       }
     }, { passive: true });
 
-    // ===================== 加载 =====================
+    const bgm = document.getElementById('bgm');
+
     async function loadDiary() {
       try {
         const response = await fetch('diary.txt');
         if (!response.ok) throw new Error('无法读取 diary.txt');
         const text = await response.text();
-        sides = parseDiaryText(text);
-        totalSides = sides.length;
-        current = 0;
+        const parsed = parseDiaryText(text);
 
-        if (totalSides === 0) {
-          rightStack.innerHTML = '<div class="loading">日记内容为空</div>';
-          return;
-        }
+        coverData = parsed.cover;
+        pages = parsed.pages;
+        totalSpreads = Math.ceil(pages.length / 2);
 
-        updateView();
+        showCover();
         document.getElementById('controls').style.display = 'flex';
         document.getElementById('hint').style.display = 'block';
       } catch (err) {
         console.error(err);
-        rightStack.innerHTML = `
-          <div class="loading" style="width:100%;text-align:center;padding:2rem;color:#f5e6c8;">
+        coverPage.style.display = 'flex';
+        coverPage.innerHTML = `
+          <div style="padding:2rem;text-align:center;color:#f5e6c8;">
             <p style="margin-bottom:0.8rem;">无法加载 diary.txt</p>
             <p style="font-size:0.9rem;opacity:0.8;line-height:1.6;">
               请确保 diary.txt 与 index.html 在同一文件夹<br>
@@ -678,6 +596,9 @@
       btn.textContent = '正在打开...';
 
       try { await sendOpenNotice(); } catch (e) { console.log('通知发送失败', e); }
+
+      bgm.volume = 0.45;
+      bgm.play().catch(e => console.log('音乐播放被阻止或文件不存在', e));
 
       document.getElementById('welcome').style.display = 'none';
       document.getElementById('bookWrapper').style.display = 'flex';
