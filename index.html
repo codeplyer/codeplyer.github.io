@@ -363,7 +363,7 @@
     }
 
 
-    /* 密码门 */
+    /* 密码门 - 修改为仅入口门 */
     #passwordGate {
       position: relative;
       z-index: 30;
@@ -372,7 +372,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1.2rem;
+      gap: 3rem; /* 保持间距调整 */
     }
 
     #passwordGate h2 {
@@ -382,37 +382,6 @@
       font-weight: 500;
     }
 
-    #passwordGate p {
-      font-size: 0.95rem;
-      color: rgba(240,248,255,0.55);
-      font-family: system-ui, sans-serif;
-    }
-
-    #passwordInput {
-      width: min(80vw, 260px);
-      padding: 0.75rem 1.1rem;
-      font-size: 1.15rem;
-      letter-spacing: 0.2em;
-      text-align: center;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(212,165,255,0.35);
-      border-radius: 12px;
-      color: white;
-      outline: none;
-      font-family: system-ui, sans-serif;
-    }
-
-    #passwordInput:focus {
-      border-color: rgba(212,165,255,0.7);
-    }
-
-    #passwordError {
-      font-size: 0.9rem;
-      color: #f5a5a5;
-      font-family: system-ui, sans-serif;
-      min-height: 1.2em;
-    }
-
   </style>
 </head>
 <body>
@@ -420,19 +389,11 @@
 
   <audio id="bgm" loop preload="auto"></audio>
 
+  <!-- 删除了原本密码输入的部分，只保留打开按钮 -->
   <div id="passwordGate">
     <h2>墙墙心事</h2>
-    <!-- 第一步：点击后发邮件，再显示密码框 -->
     <div id="gateStep1">
-      <p>有一封心事等你开启</p>
       <button class="open-btn" id="requestAccessBtn">打开</button>
-    </div>
-    <!-- 第二步：输入密码 -->
-    <div id="gateStep2" style="display:none;flex-direction:column;align-items:center;gap:1.2rem;">
-      <p>请输入密码后进入</p>
-      <input type="password" id="passwordInput" placeholder="密码" autocomplete="off" />
-      <button class="open-btn" id="passwordBtn">确认</button>
-      <div id="passwordError"></div>
     </div>
   </div>
 
@@ -440,7 +401,6 @@
     <h1>日记</h1>
     <p>轻轻打开，翻阅一页心事</p>
     <button class="open-btn" id="openDiaryBtn">打开日记</button>
-    
   </div>
 
   <div class="book-wrapper" id="bookWrapper">
@@ -783,12 +743,10 @@
     }
 
     
-    // ===================== 密码门 =====================
-    // 在这里修改密码 ↓
-    const DIARY_PASSWORD = '0527';
+    // ===================== 原密码门 (现改为直接进入) =====================
     let hasSentAccessNotice = false;
 
-    // 第一步：点击「打开」→ 先发邮件通知，再显示密码输入
+    // 点击「打开」→ 发邮件通知，并直接跳转到日记欢迎页
     document.getElementById('requestAccessBtn').addEventListener('click', async function() {
       const btn = this;
       btn.disabled = true;
@@ -799,40 +757,17 @@
         try {
           await postToMailbox({
             event: 'access_request',
-            message: '有人点击了「打开」，准备输入密码'
+            message: '有人点击了「打开」，直接进入日记' 
           });
         } catch (e) {
           console.log('访问通知发送失败', e);
         }
       }
 
-      document.getElementById('gateStep1').style.display = 'none';
-      document.getElementById('gateStep2').style.display = 'flex';
-      document.getElementById('passwordInput').focus();
+      // 直接隐藏当前页，显示 welcome 页，不再经过密码步骤
+      document.getElementById('passwordGate').style.display = 'none';
+      document.getElementById('welcome').style.display = 'flex';
     });
-
-   function checkPassword() {
-      const input = document.getElementById('passwordInput');
-      const err = document.getElementById('passwordError');
-      const val = (input.value || '').trim();
-      if (val === DIARY_PASSWORD) {
-        // 已经删除了原先这里的“密码正确 → 发邮件通知”的代码
-
-        document.getElementById('passwordGate').style.display = 'none';
-        document.getElementById('welcome').style.display = 'flex';
-        err.textContent = '';
-      } else {
-        err.textContent = '密码不对，再想想？';
-        input.value = '';
-        input.focus();
-      }
-    }
-
-    document.getElementById('passwordBtn').addEventListener('click', checkPassword);
-    document.getElementById('passwordInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkPassword();
-    });
-
 
     document.getElementById('openDiaryBtn').addEventListener('click', async function() {
       const btn = this;
